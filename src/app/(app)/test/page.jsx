@@ -9,9 +9,12 @@ export default function Classifier() {
 
   const handleClassify = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/classify", {
-        text,
-      });
+      const res = await axios.post(
+        "https://backend-skillswap.vercel.app/api/classify",
+        {
+          text,
+        }
+      );
 
       setCategory(res.data.category || "Uncertain");
       setConfidence(res.data.confidence?.toFixed(2) || "Low");

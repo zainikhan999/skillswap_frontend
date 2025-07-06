@@ -25,7 +25,7 @@ export default function Navbar() {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            "http://localhost:5000/get-notifications",
+            "https://backend-skillswap.vercel.app/get-notifications",
             {
               params: { recipient: user.userName }, // The user's username
             }
@@ -87,10 +87,13 @@ export default function Navbar() {
 
       // Mark notifications as read in the backend using axios
       try {
-        await axios.post("http://localhost:5000/update-notification", {
-          recipient: user.userName,
-          notificationIds: unreadNotificationIds,
-        });
+        await axios.post(
+          "https://backend-skillswap.vercel.app/update-notification",
+          {
+            recipient: user.userName,
+            notificationIds: unreadNotificationIds,
+          }
+        );
         // Mark notifications as read locally
         setNotification((prev) =>
           prev.map((notif) => ({

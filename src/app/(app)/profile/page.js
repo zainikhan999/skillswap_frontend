@@ -50,9 +50,12 @@ export default function ProfileForm() {
 
     try {
       setLoadingAI(true);
-      const res = await axios.post("http://localhost:5000/api/suggest-bio", {
-        prompt: aiPrompt,
-      });
+      const res = await axios.post(
+        "https://backend-skillswap.vercel.app/api/suggest-bio",
+        {
+          prompt: aiPrompt,
+        }
+      );
 
       if (res.data.suggestion) {
         setFormData((prev) => ({
@@ -96,9 +99,12 @@ export default function ProfileForm() {
         return;
       }
       try {
-        const res = await axios.post("http://localhost:5000/api/suggest-bio", {
-          text,
-        });
+        const res = await axios.post(
+          "https://backend-skillswap.vercel.app/api/suggest-bio",
+          {
+            text,
+          }
+        );
         setSuggestion(res.data.suggestion || "");
       } catch (error) {
         setSuggestion("");
@@ -229,7 +235,7 @@ export default function ProfileForm() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/submit-profile",
+        "https://backend-skillswap.vercel.app/api/submit-profile",
         updatedData
       );
       setSuccessPopup({ show: true, message: response.data.message }); // <-- Success popup on submit

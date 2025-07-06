@@ -42,7 +42,7 @@ export default function SwapFormModal({
 
   const handleSubmit = () => {
     axios
-      .post("http://localhost:5000/swapform", {
+      .post("https://backend-skillswap.vercel.app/swapform", {
         taskId,
         currentUser: currentUserFromStorage,
         recipient,

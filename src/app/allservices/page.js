@@ -25,7 +25,7 @@ const AllGigs = () => {
     const fetchGigsAndProfiles = async () => {
       try {
         const { data: gigList } = await axios.get(
-          "http://localhost:5000/api/get-all-gigs"
+          "https://backend-skillswap.vercel.app/api/get-all-gigs"
         );
 
         // Derive categories from skillName
@@ -41,7 +41,7 @@ const AllGigs = () => {
           gigList.map(async (gig) => {
             if (!profilesData[gig.username]) {
               const res = await axios.get(
-                `http://localhost:5000/api/get-latest-profile?username=${gig.username}`
+                `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${gig.username}`
               );
               profilesData[gig.username] = res.data;
             }
@@ -57,7 +57,7 @@ const AllGigs = () => {
           gigList.map(async (gig) => {
             if (!profilesData[gig.username]) {
               const res = await axios.get(
-                `http://localhost:5000/api/get-latest-profile?username=${gig.username.tolowerCase()}`
+                `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${gig.username.tolowerCase()}`
               );
               profilesData[gig.username] = res.data;
             }
@@ -65,7 +65,7 @@ const AllGigs = () => {
             if (!swapCountsData[gig.username]) {
               try {
                 const res = await axios.get(
-                  `http://localhost:5000/api/get-swap-count/${gig.username}`
+                  `https://backend-skillswap.vercel.app/api/get-swap-count/${gig.username}`
                 );
                 swapCountsData[gig.username] = res.data.swapCount || 0;
               } catch (err) {

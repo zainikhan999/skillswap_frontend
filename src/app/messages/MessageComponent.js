@@ -88,7 +88,7 @@ export default function MessageComponent() {
   const fetchChatHistory = async (user1, user2) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/messages/${user1}/${user2}`
+        `https://backend-skillswap.vercel.app/messages/${user1}/${user2}`
       );
       const formattedMessages = res.data.map((msg) => ({
         text: msg.message,
@@ -134,7 +134,7 @@ export default function MessageComponent() {
   useEffect(() => {
     if (sender) {
       axios
-        .get(`http://localhost:5000/chats/${sender}`)
+        .get(`https://backend-skillswap.vercel.app/chats/${sender}`)
         .then((res) => {
           console.log("Fetched chat users:", res.data);
           setChatUsers(res.data);
@@ -175,7 +175,7 @@ export default function MessageComponent() {
   // Handle Send Message to Backend
   const sendMessageToBackend = async ({ room, message, sender, recipient }) => {
     try {
-      await axios.post("http://localhost:5000/message", {
+      await axios.post("https://backend-skillswap.vercel.app/message", {
         room,
         message,
         sender,
@@ -274,7 +274,7 @@ export default function MessageComponent() {
       const usersToFetch = chatUsers.filter((user) => user !== sender);
 
       axios
-        .post("http://localhost:5000/api/get-user-profiles", {
+        .post("https://backend-skillswap.vercel.app/api/get-user-profiles", {
           usernames: usersToFetch,
         })
         .then((res) => {
@@ -293,7 +293,7 @@ export default function MessageComponent() {
       const allUsernames = Array.from(new Set([sender, ...chatUsers]));
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/get-user-profiles",
+          "https://backend-skillswap.vercel.app/api/get-user-profiles",
           {
             usernames: allUsernames,
           }

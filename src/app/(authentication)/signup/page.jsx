@@ -31,7 +31,7 @@
 //     setErrorMessage(""); // Clear any general error messages
 
 //     try {
-//       const response = await axios.post("http://localhost:5000/api/signup", {
+//       const response = await axios.post("https://backend-skillswap.vercel.app/api/signup", {
 //         userName,
 //         firstName,
 //         lastName,
@@ -210,13 +210,16 @@ export default function SignUp() {
     setErrorMessage("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/signup", {
-        userName,
-        firstName,
-        lastName,
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://backend-skillswap.vercel.app/api/signup",
+        {
+          userName,
+          firstName,
+          lastName,
+          email,
+          password,
+        }
+      );
 
       if (response.status === 201) {
         const userData = { userName, firstName, lastName, email };

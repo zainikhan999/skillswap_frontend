@@ -39,16 +39,22 @@ export default function GigUpload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:5000/api/classify", {
-        text: formData.skillDescription,
-      });
+      const { data } = await axios.post(
+        "https://backend-skillswap.vercel.app/api/classify",
+        {
+          text: formData.skillDescription,
+        }
+      );
 
       const gigData = {
         ...formData,
         category: data.category,
       };
 
-      await axios.post("http://localhost:5000/api/upload-service", gigData);
+      await axios.post(
+        "https://backend-skillswap.vercel.app/api/upload-service",
+        gigData
+      );
 
       setShowSuccess(true);
       setFormData({

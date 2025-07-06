@@ -9,9 +9,12 @@ export default function RatingAndReviews({ username }) {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/get-reviews`, {
-          params: { username },
-        });
+        const res = await axios.get(
+          `https://backend-skillswap.vercel.app/api/get-reviews`,
+          {
+            params: { username },
+          }
+        );
         setReviews(res.data);
       } catch (err) {
         console.error("Error fetching reviews:", err);
@@ -28,7 +31,7 @@ export default function RatingAndReviews({ username }) {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/submit-review`,
+        `https://backend-skillswap.vercel.app/api/submit-review`,
         {
           username,
           review: newReview,

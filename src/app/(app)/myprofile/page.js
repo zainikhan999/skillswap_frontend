@@ -28,10 +28,14 @@ export default function ProfileWithSidebar() {
         try {
           const [profileRes, gigsRes, swapCountRes] = await Promise.all([
             axios.get(
-              `http://localhost:5000/api/get-latest-profile?username=${username}`
+              `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${username}`
             ),
-            axios.get(`http://localhost:5000/api/get-my-gigs/${username}`),
-            axios.get(`http://localhost:5000/api/get-swap-count/${username}`),
+            axios.get(
+              `https://backend-skillswap.vercel.app/api/get-my-gigs/${username}`
+            ),
+            axios.get(
+              `https://backend-skillswap.vercel.app/api/get-swap-count/${username}`
+            ),
           ]);
 
           setFormData(profileRes.data);

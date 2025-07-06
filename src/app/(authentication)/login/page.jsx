@@ -16,10 +16,13 @@ export default function Login() {
     setErrorMessage(""); // Clear any previous error messages
 
     try {
-      const response = await axios.post("http://localhost:5000/api/login", {
-        userName,
-        password,
-      });
+      const response = await axios.post(
+        "https://backend-skillswap.vercel.app/api/login",
+        {
+          userName,
+          password,
+        }
+      );
 
       const { message, userType } = response.data;
       console.log("Login Response:", response.data);

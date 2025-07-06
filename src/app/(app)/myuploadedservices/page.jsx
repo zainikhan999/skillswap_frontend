@@ -26,12 +26,12 @@ const MyGigsPage = () => {
         setCurrentUser(user.userName);
 
         const { data: gigData } = await axios.get(
-          `http://localhost:5000/api/get-my-gigs/${user.userName}`
+          `https://backend-skillswap.vercel.app/api/get-my-gigs/${user.userName}`
         );
         setGigs(gigData);
 
         const { data: profileData } = await axios.get(
-          `http://localhost:5000/api/get-latest-profile?username=${user.userName}`
+          `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${user.userName}`
         );
         setProfiles((prevProfiles) => ({
           ...prevProfiles,
@@ -39,7 +39,7 @@ const MyGigsPage = () => {
         }));
 
         const { data: swapData } = await axios.get(
-          `http://localhost:5000/api/get-swap-count/${user.userName}`
+          `https://backend-skillswap.vercel.app/api/get-swap-count/${user.userName}`
         );
         setSwapCounts((prev) => ({
           ...prev,
@@ -64,7 +64,9 @@ const MyGigsPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/delete-gig/${gigId}`);
+      await axios.delete(
+        `https://backend-skillswap.vercel.app/api/delete-gig/${gigId}`
+      );
       const updatedGigs = gigs.filter((gig) => gig._id !== gigId);
       setGigs(updatedGigs);
       setShowSuccess(true); // Show success modal

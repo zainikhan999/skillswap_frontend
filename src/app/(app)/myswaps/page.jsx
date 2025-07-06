@@ -30,7 +30,7 @@ export default function TaskList() {
     const fetchTasks = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/get-swap-tasks",
+          "https://backend-skillswap.vercel.app/get-swap-tasks",
           {
             params: { currentUser: currentUserFromStorage },
           }
@@ -56,16 +56,19 @@ export default function TaskList() {
   // ✅ FRONTEND FIXED
   const handleConfirm = async (taskId) => {
     try {
-      const response = await axios.post("http://localhost:5000/confirm-task", {
-        taskId,
-        currentUser: currentUserFromStorage,
-      });
+      const response = await axios.post(
+        "https://backend-skillswap.vercel.app/confirm-task",
+        {
+          taskId,
+          currentUser: currentUserFromStorage,
+        }
+      );
 
       if (response.data.success) {
         alert("Task confirmed!");
 
         const refreshResponse = await axios.get(
-          "http://localhost:5000/get-swap-tasks",
+          "https://backend-skillswap.vercel.app/get-swap-tasks",
           { params: { currentUser: currentUserFromStorage } }
         );
 
@@ -91,10 +94,13 @@ export default function TaskList() {
               usersInSwap
             );
 
-            await axios.post("http://localhost:5000/api/increment-swap-count", {
-              users: usersInSwap,
-              taskId,
-            });
+            await axios.post(
+              "https://backend-skillswap.vercel.app/api/increment-swap-count",
+              {
+                users: usersInSwap,
+                taskId,
+              }
+            );
           }
         } else {
           setErrorMessage("Failed to refresh tasks after confirmation.");
@@ -108,9 +114,12 @@ export default function TaskList() {
 
   const handleDelete = async (taskId) => {
     try {
-      const response = await axios.post("http://localhost:5000/delete-task", {
-        taskId,
-      });
+      const response = await axios.post(
+        "https://backend-skillswap.vercel.app/delete-task",
+        {
+          taskId,
+        }
+      );
 
       if (response.data.success) {
         alert("Task deleted!");
