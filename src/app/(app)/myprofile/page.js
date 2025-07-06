@@ -24,7 +24,6 @@ export default function ProfileWithSidebar() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       const username = parsedUser.userName;
-
       const fetchProfileAndGigs = async () => {
         try {
           const [profileRes, gigsRes, swapCountRes] = await Promise.all([
@@ -67,7 +66,9 @@ export default function ProfileWithSidebar() {
           <h2 className="text-2xl font-semibold">{formData.name}</h2>
 
           {/* Add username below full name */}
-          <p className="text-sm text-gray-500 mb-2">@{formData.username}</p>
+          <p className="text-sm text-gray-500 mb-2">
+            @{formData.username.toLowerCase()}
+          </p>
 
           <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
             <FaMapMarkerAlt className="text-gray-400" />

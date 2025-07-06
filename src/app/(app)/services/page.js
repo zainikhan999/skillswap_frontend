@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import SuccessPopup from "../../components/successPopup"; // Adjust path if needed
+import SuccessPopup from "../../components/successPopup";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../contexts/AuthContext"; // Adjust path if needed
+import { useAuth } from "../../contexts/AuthContext";
+
 export default function GigUpload() {
   const router = useRouter();
   const [localStr, setLocalStr] = useState(null);
@@ -15,12 +16,8 @@ export default function GigUpload() {
     category: "",
   });
   const [showSuccess, setShowSuccess] = useState(false);
+
   const { user } = useAuth();
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
-  }, [user, router]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -67,6 +64,8 @@ export default function GigUpload() {
     }
   };
 
+  // ✅ Conditional rendering AFTER hooks
+  if (loading || !user) return <p className="text-center mt-10">Loading...</p>;
   if (!localStr) return <p className="text-center mt-10">Please log in.</p>;
 
   return (

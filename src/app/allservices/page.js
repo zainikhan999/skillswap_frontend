@@ -57,7 +57,7 @@ const AllGigs = () => {
           gigList.map(async (gig) => {
             if (!profilesData[gig.username]) {
               const res = await axios.get(
-                `http://localhost:5000/api/get-latest-profile?username=${gig.username}`
+                `http://localhost:5000/api/get-latest-profile?username=${gig.username.tolowerCase()}`
               );
               profilesData[gig.username] = res.data;
             }

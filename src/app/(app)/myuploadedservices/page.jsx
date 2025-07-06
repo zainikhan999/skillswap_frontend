@@ -17,8 +17,14 @@ const MyGigsPage = () => {
 
   useEffect(() => {
     const fetchUserGigsAndProfile = async () => {
+      if (!user || !user.userName) {
+        console.warn("User is not available yet.");
+        return;
+      }
+
       try {
         setCurrentUser(user.userName);
+
         const { data: gigData } = await axios.get(
           `http://localhost:5000/api/get-my-gigs/${user.userName}`
         );
@@ -47,8 +53,9 @@ const MyGigsPage = () => {
         }));
       }
     };
+
     fetchUserGigsAndProfile();
-  }, [user?.userName]);
+  }, [user]); // only depend on `user`, not `user.userName`
 
   const handleDelete = async (gigId) => {
     const confirmDelete = window.confirm(
