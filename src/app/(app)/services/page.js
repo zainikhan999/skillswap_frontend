@@ -17,7 +17,7 @@ export default function GigUpload() {
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
