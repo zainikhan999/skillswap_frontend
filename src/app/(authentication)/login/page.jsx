@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../utils/api"; // Adjust the path if necessary
+
 import { useRouter } from "next/navigation"; // Import useRouter
 import { useAuth } from "../../contexts/AuthContext"; // Adjust path if needed
 import Link from "next/link";
@@ -16,13 +17,10 @@ export default function Login() {
     setErrorMessage(""); // Clear any previous error messages
 
     try {
-      const response = await axios.post(
-        "https://backend-skillswap.vercel.app/api/login",
-        {
-          userName,
-          password,
-        }
-      );
+      const response = await api.post("http://localhost:5000/api/login", {
+        userName,
+        password,
+      });
 
       const { message, userType } = response.data;
       console.log("Login Response:", response.data);

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api"; // Adjust the path if necessary
+api.defaults.withCredentials = true;
 import { FaUserCircle } from "react-icons/fa";
 import { FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
@@ -27,14 +28,16 @@ export default function ProfileWithSidebar() {
       const fetchProfileAndGigs = async () => {
         try {
           const [profileRes, gigsRes, swapCountRes] = await Promise.all([
-            axios.get(
-              `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${username}`
+            api.get("http://localhost:5000/api/get-latest-profile", {
+              withCredentials: true,
+            }),
+            api.get(
+              `http://localhost:5000/api/get-my-gigs/${username}`,
+              { withCredentials: true } // ✅ Send cookies
             ),
-            axios.get(
-              `https://backend-skillswap.vercel.app/api/get-my-gigs/${username}`
-            ),
-            axios.get(
-              `https://backend-skillswap.vercel.app/api/get-swap-count/${username}`
+            api.get(
+              `http://localhost:5000/api/get-swap-count/${username}`,
+              { withCredentials: true } // ✅ Send cookies
             ),
           ]);
 

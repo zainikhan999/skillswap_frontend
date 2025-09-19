@@ -2,7 +2,8 @@
 import { FaUserCircle } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
-import axios from "axios";
+import api from "../../utils/api"; // Adjust the path if necessary
+api.defaults.withCredentials = true;
 import { useRouter } from "next/navigation";
 import { useAuth } from "contexts/AuthContext";
 import ErrorPopup from "../../components/errorPopup";
@@ -50,12 +51,9 @@ export default function ProfileForm() {
 
     try {
       setLoadingAI(true);
-      const res = await axios.post(
-        "https://backend-skillswap.vercel.app/api/suggest-bio",
-        {
-          prompt: aiPrompt,
-        }
-      );
+      const res = await api.post("http://localhost:5000/api/suggest-bio", {
+        prompt: aiPrompt,
+      });
 
       if (res.data.suggestion) {
         setFormData((prev) => ({
@@ -99,12 +97,9 @@ export default function ProfileForm() {
         return;
       }
       try {
-        const res = await axios.post(
-          "https://backend-skillswap.vercel.app/api/suggest-bio",
-          {
-            text,
-          }
-        );
+        const res = await api.post("http://localhost:5000/api/suggest-bio", {
+          text,
+        });
         setSuggestion(res.data.suggestion || "");
       } catch (error) {
         setSuggestion("");
@@ -166,7 +161,7 @@ export default function ProfileForm() {
     formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
-      const response = await axios.post(CLOUDINARY_URL, formData);
+      const response = await api.post(CLOUDINARY_URL, formData);
       const uploadedImageUrl = response.data.secure_url;
 
       setImageUrl(uploadedImageUrl);
@@ -234,8 +229,8 @@ export default function ProfileForm() {
     }
 
     try {
-      const response = await axios.post(
-        "https://backend-skillswap.vercel.app/api/submit-profile",
+      const response = await api.post(
+        "http://localhost:5000/api/submit-profile",
         updatedData
       );
       setSuccessPopup({ show: true, message: response.data.message }); // <-- Success popup on submit

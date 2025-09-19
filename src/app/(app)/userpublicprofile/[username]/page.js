@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../../utils/api.js";
+api.defaults.withCredentials = true;
 import { useParams } from "next/navigation";
 import { FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
 
@@ -15,15 +16,11 @@ export default function UserPublicProfile() {
     const fetchUserProfile = async () => {
       try {
         const [profileRes, gigsRes, swapCountRes] = await Promise.all([
-          axios.get(
-            `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${username}`
+          api.get(
+            `http://localhost:5000/api/get-latest-profile?username=${username}`
           ),
-          axios.get(
-            `https://backend-skillswap.vercel.app/api/get-my-gigs/${username}`
-          ),
-          axios.get(
-            `https://backend-skillswap.vercel.app/api/get-swap-count/${username}`
-          ),
+          api.get(`http://localhost:5000/api/get-my-gigs/${username}`),
+          api.get(`http://localhost:5000/api/get-swap-count/${username}`),
         ]);
 
         setFormData(profileRes.data);

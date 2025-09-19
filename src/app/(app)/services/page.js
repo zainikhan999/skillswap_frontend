@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api.js";
+api.defaults.withCredentials = true;
 import SuccessPopup from "../../components/successPopup";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
@@ -39,22 +40,16 @@ export default function GigUpload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(
-        "https://backend-skillswap.vercel.app/api/classify",
-        {
-          text: formData.skillDescription,
-        }
-      );
+      const { data } = await api.post("http://localhost:5000/api/classify", {
+        text: formData.skillDescription,
+      });
 
       const gigData = {
         ...formData,
         category: data.category,
       };
 
-      await axios.post(
-        "https://backend-skillswap.vercel.app/api/upload-service",
-        gigData
-      );
+      await api.post("http://localhost:5000/api/upload-service", gigData);
 
       setShowSuccess(true);
       setFormData({

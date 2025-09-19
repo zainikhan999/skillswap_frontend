@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 import { useChat } from "../contexts/ChatContext"; // Import useChat to check if chat is open
-import axios from "axios";
-import Image from "next/image";
+import api from "../utils/api";
+api.defaults.withCredentials = true;
 
 export default function Navbar() {
   const { socket, notification, setNotification } = useSocket(); // Access notification from context
@@ -24,8 +24,8 @@ export default function Navbar() {
       // Check if user and userName are available
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get(
-            "https://backend-skillswap.vercel.app/get-notifications",
+          const response = await api.get(
+            "http://localhost:5000/get-notifications",
             {
               params: { recipient: user.userName }, // The user's username
             }
@@ -85,15 +85,12 @@ export default function Navbar() {
 
       console.log("Unread notification IDs:", unreadNotificationIds);
 
-      // Mark notifications as read in the backend using axios
+      // Mark notifications as read in the backend using api
       try {
-        await axios.post(
-          "https://backend-skillswap.vercel.app/update-notification",
-          {
-            recipient: user.userName,
-            notificationIds: unreadNotificationIds,
-          }
-        );
+        await api.post("http://localhost:5000/update-notification", {
+          recipient: user.userName,
+          notificationIds: unreadNotificationIds,
+        });
         // Mark notifications as read locally
         setNotification((prev) =>
           prev.map((notif) => ({
@@ -115,10 +112,21 @@ export default function Navbar() {
     setIsNotificationDropdownOpen(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-    localStorage.removeItem("userId");
+  const handleLogout = async () => {
+    try {
+      await api.post(
+        "http://localhost:5000/api/logout",
+        {},
+        { withCredentials: true }
+      );
+
+      // Clear client state
+      logout();
+      localStorage.removeItem("userId");
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (

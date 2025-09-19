@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
+api.defaults.withCredentials = true;
+
 import { IoAddCircleSharp } from "react-icons/io5";
 
 export default function TaskList() {
@@ -29,12 +31,10 @@ export default function TaskList() {
 
     const fetchTasks = async () => {
       try {
-        const response = await axios.get(
-          "https://backend-skillswap.vercel.app/get-swap-tasks",
-          {
-            params: { currentUser: currentUserFromStorage },
-          }
-        );
+        const response = await api.get("http://localhost:5000/get-swap-tasks", {
+          params: { currentUser: currentUserFromStorage },
+          withCredentials: true,
+        });
 
         if (response.data.success) {
           console.log("Fetched tasks:", response.data.tasks);
@@ -56,20 +56,20 @@ export default function TaskList() {
   // ✅ FRONTEND FIXED
   const handleConfirm = async (taskId) => {
     try {
-      const response = await axios.post(
-        "https://backend-skillswap.vercel.app/confirm-task",
-        {
-          taskId,
-          currentUser: currentUserFromStorage,
-        }
-      );
+      const response = await api.post("http://localhost:5000/confirm-task", {
+        taskId,
+        currentUser: currentUserFromStorage,
+      });
 
       if (response.data.success) {
         alert("Task confirmed!");
 
-        const refreshResponse = await axios.get(
-          "https://backend-skillswap.vercel.app/get-swap-tasks",
-          { params: { currentUser: currentUserFromStorage } }
+        const refreshResponse = await api.get(
+          "http://localhost:5000/get-swap-tasks",
+          {
+            params: { currentUser: currentUserFromStorage },
+            withCredentials: true,
+          }
         );
 
         if (refreshResponse.data.success) {
@@ -94,13 +94,10 @@ export default function TaskList() {
               usersInSwap
             );
 
-            await axios.post(
-              "https://backend-skillswap.vercel.app/api/increment-swap-count",
-              {
-                users: usersInSwap,
-                taskId,
-              }
-            );
+            await api.post("http://localhost:5000/api/increment-swap-count", {
+              users: usersInSwap,
+              taskId,
+            });
           }
         } else {
           setErrorMessage("Failed to refresh tasks after confirmation.");
@@ -114,12 +111,9 @@ export default function TaskList() {
 
   const handleDelete = async (taskId) => {
     try {
-      const response = await axios.post(
-        "https://backend-skillswap.vercel.app/delete-task",
-        {
-          taskId,
-        }
-      );
+      const response = await api.post("http://localhost:5000/delete-task", {
+        taskId,
+      });
 
       if (response.data.success) {
         alert("Task deleted!");

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import axios from "axios";
-
+import api from "../../utils/api.js";
+api.defaults.withCredentials = true;
 export default function Classifier() {
   const [text, setText] = useState("");
   const [category, setCategory] = useState("");
@@ -9,12 +9,9 @@ export default function Classifier() {
 
   const handleClassify = async () => {
     try {
-      const res = await axios.post(
-        "https://backend-skillswap.vercel.app/api/classify",
-        {
-          text,
-        }
-      );
+      const res = await api.post("http://localhost:5000/api/classify", {
+        text,
+      });
 
       setCategory(res.data.category || "Uncertain");
       setConfidence(res.data.confidence?.toFixed(2) || "Low");

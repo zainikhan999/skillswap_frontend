@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
+api.defaults.withCredentials = true;
 import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext"; // Import the AuthContext
 import Link from "next/link";
 import { FaUserCircle } from "react-icons/fa";
+import SwapFormModal from "../components/swapformModel"; // Adjust path if different
 
 const AllGigs = () => {
   const router = useRouter();
@@ -14,6 +16,8 @@ const AllGigs = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [filteredGigs, setFilteredGigs] = useState([]);
   const [swapCounts, setSwapCounts] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [selectedGig, setSelectedGig] = useState(null);
 
   const { user } = useAuth(); // Access the user from AuthContext
   useEffect(() => {
@@ -24,8 +28,9 @@ const AllGigs = () => {
   useEffect(() => {
     const fetchGigsAndProfiles = async () => {
       try {
-        const { data: gigList } = await axios.get(
-          "https://backend-skillswap.vercel.app/api/get-all-gigs"
+        const { data: gigList } = await api.get(
+          "http://localhost:5000/api/get-all-gigs",
+          { withCredentials: true }
         );
 
         // Derive categories from skillName
@@ -40,8 +45,8 @@ const AllGigs = () => {
         await Promise.all(
           gigList.map(async (gig) => {
             if (!profilesData[gig.username]) {
-              const res = await axios.get(
-                `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${gig.username}`
+              const res = await api.get(
+                `http://localhost:5000/api/get-all-services?username=${gig.username}`
               );
               profilesData[gig.username] = res.data;
             }
@@ -56,16 +61,16 @@ const AllGigs = () => {
         await Promise.all(
           gigList.map(async (gig) => {
             if (!profilesData[gig.username]) {
-              const res = await axios.get(
-                `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${gig.username.tolowerCase()}`
+              const res = await api.get(
+                `http://localhost:5000/api/get-all-services?username=${gig.username.tolowerCase()}`
               );
               profilesData[gig.username] = res.data;
             }
 
             if (!swapCountsData[gig.username]) {
               try {
-                const res = await axios.get(
-                  `https://backend-skillswap.vercel.app/api/get-swap-count/${gig.username}`
+                const res = await api.get(
+                  `http://localhost:5000/api/get-swap-count/${gig.username}`
                 );
                 swapCountsData[gig.username] = res.data.swapCount || 0;
               } catch (err) {
@@ -98,8 +103,12 @@ const AllGigs = () => {
   };
 
   // Handle redirect to messages
-  const handleSwapRequest = (recipientUsername) => {
-    router.push(`/messages?recipient=${recipientUsername}`);
+  // const handleSwapRequest = (recipientUsername) => {
+  //   router.push(`/messages?recipient=${recipientUsername}`);
+  // };
+  const openSwapModal = (gig) => {
+    setSelectedGig(gig);
+    setShowModal(true);
   };
 
   return (
@@ -172,7 +181,7 @@ const AllGigs = () => {
 
                 {/* Request Swap Button */}
                 <button
-                  onClick={() => handleSwapRequest(gig.username)}
+                  onClick={() => openSwapModal(gig)}
                   className="mt-4 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition"
                 >
                   Request Swap
@@ -180,6 +189,17 @@ const AllGigs = () => {
               </div>
             );
           })}
+          {showModal && selectedGig && (
+            <SwapFormModal
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+              recipient={selectedGig.username}
+              gig={selectedGig}
+              onSubmit={() => {
+                setShowModal(false);
+              }}
+            />
+          )}
         </div>
       ) : (
         <p className="text-center text-gray-500 mt-6">

@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import SuccessPopup from "../components/successPopup";
-import ErrorPopup from "../components/errorPopup"; // 👈 Import added
+import ErrorPopup from "../components/errorPopup";
 
+api.defaults.withCredentials = true;
 export default function SwapFormModal({
   isOpen,
   onClose,
   recipient,
-  currentUser,
   onSubmit,
 }) {
   const [taskId, setTaskId] = useState("");
@@ -35,46 +35,55 @@ export default function SwapFormModal({
     }
   }, []);
 
-  const generateTaskId = () => {
-    const newId = `task-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    setTaskId(newId);
-  };
+  useEffect(() => {
+    if (isOpen) {
+      const generatedId = `task-${Date.now()}-${Math.floor(
+        Math.random() * 1000
+      )}`;
+      setTaskId(generatedId);
+    }
+  }, [isOpen]);
 
-  const handleSubmit = () => {
-    axios
-      .post("https://backend-skillswap.vercel.app/swapform", {
-        taskId,
-        currentUser: currentUserFromStorage,
-        recipient,
-        taskName,
-        timeRequired,
-        description,
-        deadline,
-      })
-      .then((response) => {
-        console.log("Swap details saved successfully:", response.data);
-        setTaskId("");
-        setTaskName("");
-        setTimeRequired("");
-        setDescription("");
-        setDeadline("");
-        setShowSuccess(true);
+  const handleSubmit = async () => {
+    try {
+      // const token = localStorage.getItem("token");
 
-        setTimeout(() => {
-          setShowSuccess(false);
-          onSubmit();
-          onClose();
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error("Error saving swap details:", error);
-        const backendMessage =
-          error?.response?.data?.error ||
-          error?.response?.data?.message ||
-          "Something went wrong!";
+      const response = await api.post(
+        "http://localhost:5000/api/swap-request",
+        {
+          taskId: taskId,
+          currentUser: currentUserFromStorage,
+          recipient,
+          taskName,
+          timeRequired,
+          description,
+          deadline,
+        }
+        // {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // }
+      );
 
-        setErrorMessage(backendMessage); // 👈 Show backend error
-      });
+      console.log("Swap request created:", response.data);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        onSubmit();
+        onClose();
+      }, 3000);
+
+      // Reset form
+      setTaskId("");
+      setTaskName("");
+      setTimeRequired("");
+      setDescription("");
+      setDeadline("");
+    } catch (error) {
+      console.error("Error submitting swap request:", error);
+      const backendMessage =
+        error?.response?.data?.message || "Something went wrong!";
+      setErrorMessage(backendMessage);
+    }
   };
 
   if (!isOpen) return null;
@@ -82,63 +91,25 @@ export default function SwapFormModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-xl w-[90%] max-w-md shadow-xl">
-        <h2 className="text-xl font-bold mb-4">Swap Details</h2>
-
-        {/* Task ID with Generate & Copy */}
-        <label className="block mb-2">
-          <span className="text-sm font-medium">Task ID</span>
-          <div className="flex flex-wrap gap-2 mb-1">
-            <input
-              type="text"
-              value={taskId}
-              onChange={(e) => setTaskId(e.target.value)}
-              placeholder="Generate or paste ID"
-              className="flex-1 min-w-[150px] p-2 border rounded"
-            />
-            <button
-              type="button"
-              onClick={generateTaskId}
-              className="px-2 py-1 text-sm bg-blue-500 text-white rounded whitespace-nowrap"
-            >
-              Generate
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(taskId);
-                setCopyStatus("Copied!");
-                setTimeout(() => setCopyStatus(""), 1500);
-              }}
-              className="px-2 py-1 text-sm bg-gray-300 rounded whitespace-nowrap"
-              disabled={!taskId}
-            >
-              {copyStatus || "Copy"}
-            </button>
-          </div>
-
-          <p className="text-xs text-gray-600">
-            This ID links two swap requests together. Click &quot;Generate&quot;
-            to start a swap, or paste the Task ID sent by someone else.
-          </p>
-        </label>
+        <h2 className="text-xl font-bold mb-4">Create Swap Request</h2>
 
         <label className="block mb-2">
-          <span className="text-sm font-medium">You (Sender)</span>
+          <span className="text-sm font-medium">Your Username</span>
           <input
             type="text"
             value={currentUserFromStorage}
             readOnly
-            className="w-full p-2 rounded bg-gray-100"
+            className="w-full p-2 bg-gray-100 rounded"
           />
         </label>
 
         <label className="block mb-2">
-          <span className="text-sm font-medium">Exchange User</span>
+          <span className="text-sm font-medium">Recipient Username</span>
           <input
             type="text"
             value={recipient}
             readOnly
-            className="w-full p-2 rounded bg-gray-100"
+            className="w-full p-2 bg-gray-100 rounded"
           />
         </label>
 
@@ -153,11 +124,10 @@ export default function SwapFormModal({
         </label>
 
         <label className="block mb-2">
-          <span className="text-sm font-medium">Time Required (in hours)</span>
+          <span className="text-sm font-medium">Time Required (hours)</span>
           <input
             type="number"
-            min="0"
-            step="0.5"
+            min="1"
             value={timeRequired}
             onChange={(e) => setTimeRequired(e.target.value)}
             className="w-full p-2 border rounded"
@@ -196,7 +166,6 @@ export default function SwapFormModal({
         </div>
       </div>
 
-      {/* Toasts */}
       {showSuccess && <SuccessPopup onClose={() => setShowSuccess(false)} />}
       {errorMessage && (
         <ErrorPopup

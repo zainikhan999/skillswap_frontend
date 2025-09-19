@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api"; // Adjust the path if necessary"
+api.defaults.withCredentials = true;
 import { useAuth } from "../../contexts/AuthContext"; // Adjust the import path as necessary
 import { FaUser } from "react-icons/fa"; // Importing default user icon
 import SuccessPopup from "../../components/successPopup"; // Adjust the import path as necessary
@@ -25,21 +26,21 @@ const MyGigsPage = () => {
       try {
         setCurrentUser(user.userName);
 
-        const { data: gigData } = await axios.get(
-          `https://backend-skillswap.vercel.app/api/get-my-gigs/${user.userName}`
+        const { data: gigData } = await api.get(
+          `http://localhost:5000/api/get-my-gigs/${user.userName}`
         );
         setGigs(gigData);
 
-        const { data: profileData } = await axios.get(
-          `https://backend-skillswap.vercel.app/api/get-latest-profile?username=${user.userName}`
+        const { data: profileData } = await api.get(
+          `http://localhost:5000/api/get-latest-profile`
         );
         setProfiles((prevProfiles) => ({
           ...prevProfiles,
           [user.userName]: profileData,
         }));
 
-        const { data: swapData } = await axios.get(
-          `https://backend-skillswap.vercel.app/api/get-swap-count/${user.userName}`
+        const { data: swapData } = await api.get(
+          `http://localhost:5000/api/get-swap-count/${user.userName}`
         );
         setSwapCounts((prev) => ({
           ...prev,
@@ -64,9 +65,7 @@ const MyGigsPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(
-        `https://backend-skillswap.vercel.app/api/delete-gig/${gigId}`
-      );
+      await api.delete(`http://localhost:5000/api/delete-gig/${gigId}`);
       const updatedGigs = gigs.filter((gig) => gig._id !== gigId);
       setGigs(updatedGigs);
       setShowSuccess(true); // Show success modal
