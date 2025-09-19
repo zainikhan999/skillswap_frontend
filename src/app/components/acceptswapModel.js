@@ -123,8 +123,9 @@ export default function AcceptSwapModal({
           Accept Swap Request
         </h2>
         <p className="text-sm text-gray-600 mb-4">
-          Fill in the details of what you'll provide in return for this skill
-          swap.
+          {
+            "Fill in the details of what you'll provide in return for this skill swap."
+          }
         </p>
 
         <form onSubmit={handleSubmit}>
