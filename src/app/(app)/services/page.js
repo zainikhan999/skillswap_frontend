@@ -217,8 +217,8 @@ export default function GigUpload() {
                     <p className="text-green-700 text-sm leading-relaxed">
                       Your service will be automatically categorized and made
                       visible to other users. When someone is interested, they
-                      can request a swap and you'll be notified to arrange the
-                      exchange.
+                      can request a swap and {`you'll`} be notified to arrange
+                      the exchange.
                     </p>
                   </div>
                 </div>
