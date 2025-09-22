@@ -2,7 +2,7 @@
 import axios from "axios";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const api = axios.create({
-  baseURL: "http://localhost:5000", // change this to your backend URL in prod
+  baseURL: BASE_URL, // change this to your backend URL in prod
   withCredentials: true, // send cookies automatically
 });
 
