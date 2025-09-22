@@ -38,6 +38,8 @@ export default function Navbar() {
     }
   }, [user]); // Trigger on component mount or whenever user changes
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (socket) {
       socket.on("receive_notification", (notificationData) => {
@@ -48,7 +50,6 @@ export default function Navbar() {
         ]);
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   // Handle socket notifications
