@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSocket } from "../contexts/SocketContext"; // Import useSocket
 import { FiBell, FiMail, FiUser } from "react-icons/fi";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { useChat } from "../contexts/ChatContext"; // Import useChat to check if
 import api from "../utils/api";
 api.defaults.withCredentials = true;
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export default function Navbar() {
   const { socket, notification, setNotification } = useSocket(); // Access notification from context
   const [notificationCount, setNotificationCount] = useState(0);
@@ -17,7 +18,11 @@ export default function Navbar() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { isChatOpen } = useChat(); // Consume ChatContext to check if chat is open
-  // Add this at the top of your component
+
+  // Memoize setNotification to avoid unnecessary re-renders
+  const memoizedSetNotification = useCallback(setNotification, [
+    setNotification,
+  ]);
 
   useEffect(() => {
     if (user && user.userName) {
@@ -28,7 +33,7 @@ export default function Navbar() {
             params: { recipient: user.userName }, // The user's username
           });
 
-          setNotification(response.data.notifications); // Store the fetched notifications
+          memoizedSetNotification(response.data.notifications); // Store the fetched notifications
         } catch (error) {
           console.error("Error fetching notifications:", error);
         }
@@ -36,21 +41,19 @@ export default function Navbar() {
 
       fetchNotifications();
     }
-  }, [user]); // Trigger on component mount or whenever user changes
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, memoizedSetNotification]); // Fixed: Added memoizedSetNotification to dependencies
 
   useEffect(() => {
     if (socket) {
       socket.on("receive_notification", (notificationData) => {
         // Handle new notification
-        setNotification((prevNotifications) => [
+        memoizedSetNotification((prevNotifications) => [
           ...prevNotifications,
           notificationData,
         ]);
       });
     }
-  }, [socket, setNotification]);
+  }, [socket, memoizedSetNotification]); // Fixed: Added memoizedSetNotification to dependencies
 
   // Handle socket notifications
   useEffect(() => {
@@ -91,7 +94,7 @@ export default function Navbar() {
           notificationIds: unreadNotificationIds,
         });
         // Mark notifications as read locally
-        setNotification((prev) =>
+        memoizedSetNotification((prev) =>
           prev.map((notif) => ({
             ...notif,
             seen: true,

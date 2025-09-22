@@ -64,7 +64,9 @@ export default function ProfileWithSidebar() {
 
     fetchProfileData();
   }, [BASE_URL]); // You can even safely leave it as [] if BASE_URL never changes
-
+  useEffect(() => {
+    fetchProfileData();
+  }, [fetchProfileData]);
   const handleUpdateSuccess = (updatedProfile) => {
     if (updatedProfile === null) {
       // Profile was deleted
