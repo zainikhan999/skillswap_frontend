@@ -17,7 +17,7 @@ import {
   FaUsers,
   FaSignInAlt,
 } from "react-icons/fa";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export default function Login() {
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +33,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await api.post("http://localhost:5000/api/login", {
+      const response = await api.post(`${BASE_URL}/api/login`, {
         userName,
         password,
       });

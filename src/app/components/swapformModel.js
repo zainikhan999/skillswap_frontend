@@ -5,6 +5,8 @@ import SuccessPopup from "../components/successPopup";
 import ErrorPopup from "../components/errorPopup";
 
 api.defaults.withCredentials = true;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 export default function SwapFormModal({
   isOpen,
   onClose,
@@ -49,7 +51,7 @@ export default function SwapFormModal({
       // const token = localStorage.getItem("token");
 
       const response = await api.post(
-        "http://localhost:5000/api/swap-request",
+        `${BASE_URL}/api/swap-request`,
         {
           taskId: taskId,
           currentUser: currentUserFromStorage,

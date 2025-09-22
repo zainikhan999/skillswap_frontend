@@ -17,7 +17,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import SwapFormModal from "../components/swapformModel";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const AllGigs = () => {
   const router = useRouter();
   const [gigs, setGigs] = useState([]);
@@ -45,7 +45,7 @@ const AllGigs = () => {
     const fetchGigsAndProfiles = async () => {
       try {
         const { data: gigList } = await api.get(
-          "http://localhost:5000/api/get-all-gigs",
+          `${BASE_URL}/api/get-all-gigs`,
           { withCredentials: true }
         );
 
@@ -63,7 +63,7 @@ const AllGigs = () => {
             if (!profilesData[gig.username]) {
               try {
                 const res = await api.get(
-                  `http://localhost:5000/api/get-all-services?username=${gig.username}`
+                  `${BASE_URL}/api/get-all-services?username=${gig.username}`
                 );
                 profilesData[gig.username] = res.data;
               } catch (err) {
@@ -74,7 +74,7 @@ const AllGigs = () => {
             if (!swapCountsData[gig.username]) {
               try {
                 const res = await api.get(
-                  `http://localhost:5000/api/get-swap-count/${gig.username}`
+                  `${BASE_URL}/api/get-swap-count/${gig.username}`
                 );
                 swapCountsData[gig.username] = res.data.swapCount || 0;
               } catch (err) {

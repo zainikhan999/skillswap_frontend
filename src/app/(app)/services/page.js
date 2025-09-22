@@ -15,6 +15,7 @@ import {
   FaUpload,
   FaSpinner,
 } from "react-icons/fa";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function GigUpload() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function GigUpload() {
     setIsSubmitting(true);
 
     try {
-      const { data } = await api.post("http://localhost:5000/api/classify", {
+      const { data } = await api.post(`${BASE_URL}api/classify`, {
         text: formData.skillDescription,
       });
 
@@ -62,7 +63,7 @@ export default function GigUpload() {
         category: data.category,
       };
 
-      await api.post("http://localhost:5000/api/upload-service", gigData);
+      await api.post(`${BASE_URL}/api/upload-service`, gigData);
 
       setShowSuccess(true);
       setFormData({

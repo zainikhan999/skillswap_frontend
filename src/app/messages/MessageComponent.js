@@ -28,6 +28,7 @@ import ProposeTimeModal from "../components/timeModel.js";
 import AcceptSwapModal from "../components/acceptswapModel";
 
 api.defaults.withCredentials = true;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function MessageComponent() {
   // State Variables
@@ -170,7 +171,7 @@ export default function MessageComponent() {
   const checkSwapStatusFromAPI = async (swapId) => {
     try {
       const response = await api.get(
-        `http://localhost:5000/api/swaps/${swapId}/status`
+        `https://backend-skillswap.vercel.app/api/swaps/${swapId}/status`
       );
       const { bothCompleted, status } = response.data;
 

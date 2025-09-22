@@ -12,7 +12,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import UpdateProfile from "../updateProfile/page";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export default function ProfileWithSidebar() {
   const [formData, setFormData] = useState({
     name: "",
@@ -29,6 +29,7 @@ export default function ProfileWithSidebar() {
   const [totalSwaps, setTotalSwaps] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [profileDeleted, setProfileDeleted] = useState(false);
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const fetchProfileData = async () => {
     const storedUser = localStorage.getItem("user");
@@ -38,15 +39,18 @@ export default function ProfileWithSidebar() {
 
       try {
         const [profileRes, gigsRes, swapCountRes] = await Promise.all([
-          api.get("http://localhost:5000/api/get-latest-profile", {
+          api.get(`${BASE_URL}/api/get-latest-profile`),
+          {
             withCredentials: true,
-          }),
-          api.get(`http://localhost:5000/api/get-my-gigs/${username}`, {
+          },
+          api.get(`${BASE_URL}/api/get-my-gigs/${username}`),
+          {
             withCredentials: true,
-          }),
-          api.get(`http://localhost:5000/api/get-swap-count/${username}`, {
+          },
+          api.get(`${BASE_URL}/api/get-swap-count/${username}`),
+          {
             withCredentials: true,
-          }),
+          },
         ]);
 
         setFormData(profileRes.data);

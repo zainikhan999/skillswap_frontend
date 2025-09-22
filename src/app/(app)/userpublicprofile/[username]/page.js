@@ -4,6 +4,7 @@ import api from "../../../utils/api.js";
 api.defaults.withCredentials = true;
 import { useParams } from "next/navigation";
 import { FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function UserPublicProfile() {
   const { username } = useParams();
@@ -16,11 +17,9 @@ export default function UserPublicProfile() {
     const fetchUserProfile = async () => {
       try {
         const [profileRes, gigsRes, swapCountRes] = await Promise.all([
-          api.get(
-            `http://localhost:5000/api/get-latest-profile?username=${username}`
-          ),
-          api.get(`http://localhost:5000/api/get-my-gigs/${username}`),
-          api.get(`http://localhost:5000/api/get-swap-count/${username}`),
+          api.get(`${BASE_URL}/api/get-latest-profile?username=${username}`),
+          api.get(`${BASE_URL}/api/get-my-gigs/${username}`),
+          api.get(`${BASE_URL}/api/get-swap-count/${username}`),
         ]);
 
         setFormData(profileRes.data);

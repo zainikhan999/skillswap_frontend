@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useChat } from "../contexts/ChatContext"; // Import useChat to check if chat is open
 import api from "../utils/api";
 api.defaults.withCredentials = true;
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export default function Navbar() {
   const { socket, notification, setNotification } = useSocket(); // Access notification from context
   const [notificationCount, setNotificationCount] = useState(0);
@@ -24,12 +24,9 @@ export default function Navbar() {
       // Check if user and userName are available
       const fetchNotifications = async () => {
         try {
-          const response = await api.get(
-            "http://localhost:5000/get-notifications",
-            {
-              params: { recipient: user.userName }, // The user's username
-            }
-          );
+          const response = await api.get(`${BASE_URL}/get-notifications`, {
+            params: { recipient: user.userName }, // The user's username
+          });
 
           setNotification(response.data.notifications); // Store the fetched notifications
         } catch (error) {
@@ -87,7 +84,7 @@ export default function Navbar() {
 
       // Mark notifications as read in the backend using api
       try {
-        await api.post("http://localhost:5000/update-notification", {
+        await api.post(`${BASE_URL}/update-notification`, {
           recipient: user.userName,
           notificationIds: unreadNotificationIds,
         });
@@ -114,11 +111,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await api.post(
-        "http://localhost:5000/api/logout",
-        {},
-        { withCredentials: true }
-      );
+      await api.post(`${BASE_URL}/api/logout`, {}, { withCredentials: true });
 
       // Clear client state
       logout();

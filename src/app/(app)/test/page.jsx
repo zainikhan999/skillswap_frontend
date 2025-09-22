@@ -6,10 +6,10 @@ export default function Classifier() {
   const [text, setText] = useState("");
   const [category, setCategory] = useState("");
   const [confidence, setConfidence] = useState("");
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const handleClassify = async () => {
     try {
-      const res = await api.post("http://localhost:5000/api/classify", {
+      const res = await api.post(`${BASE_URL}/api/classify`, {
         text,
       });
 

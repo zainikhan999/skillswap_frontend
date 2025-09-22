@@ -32,7 +32,7 @@ import {
 } from "react-icons/fa";
 
 api.defaults.withCredentials = true;
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export default function SwapDashboard() {
   const [swaps, setSwaps] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -72,7 +72,7 @@ export default function SwapDashboard() {
   const fetchSwaps = async () => {
     try {
       setLoading(true);
-      const response = await api.get("http://localhost:5000/api/swaps", {
+      const response = await api.get(`${BASE_URL}/api/swaps`, {
         withCredentials: true,
       });
 

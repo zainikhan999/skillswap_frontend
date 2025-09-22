@@ -25,7 +25,7 @@ import { useAuth } from "contexts/AuthContext";
 import ErrorPopup from "../../components/errorPopup";
 import SuccessPopup from "../../components/successPopup";
 import throttle from "lodash/throttle";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dnmhfubvn/image/upload";
 const UPLOAD_PRESET = "displaypicture";
 
@@ -69,7 +69,7 @@ export default function ProfileForm() {
 
     try {
       setLoadingAI(true);
-      const res = await api.post("http://localhost:5000/api/suggest-bio", {
+      const res = await api.post(`${BASE_URL}/api/suggest-bio`, {
         prompt: aiPrompt,
       });
 
@@ -115,7 +115,7 @@ export default function ProfileForm() {
         return;
       }
       try {
-        const res = await api.post("http://localhost:5000/api/suggest-bio", {
+        const res = await api.post(`${BASE_URL}/api/suggest-bio`, {
           text,
         });
         setSuggestion(res.data.suggestion || "");
@@ -253,7 +253,7 @@ export default function ProfileForm() {
     try {
       setSubmitting(true);
       const response = await api.post(
-        "http://localhost:5000/api/submit-profile",
+        `${BASE_URL}/api/submit-profile`,
         updatedData
       );
       setSuccessPopup({ show: true, message: response.data.message });

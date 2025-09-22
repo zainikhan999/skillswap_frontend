@@ -13,7 +13,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import api from "../../utils/api";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 export default function UpdateProfile({
   isOpen,
   onClose,
@@ -218,7 +218,7 @@ export default function UpdateProfile({
     try {
       // Using api instead of direct fetch
       const response = await api.put(
-        "http://localhost:5000/api/update-profile",
+        `${BASE_URL}/api/update-profile`,
         formData,
         {
           withCredentials: true,
@@ -251,7 +251,7 @@ export default function UpdateProfile({
     try {
       // Using api instead of direct fetch
       const response = await api.delete(
-        "http://localhost:5000/api/delete-profile",
+        `${BASE_URL}/api/delete-profile`,
         {
           withCredentials: true,
         }

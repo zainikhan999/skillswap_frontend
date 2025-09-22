@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa"; // Importing icons
 import SuccessPopup from "../../components/successPopup"; // Adjust the import path as necessary
 import Link from "next/link";
-
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const MyGigsPage = () => {
   const [gigs, setGigs] = useState([]);
   const [profiles, setProfiles] = useState({});
@@ -37,12 +37,12 @@ const MyGigsPage = () => {
         setCurrentUser(user.userName);
 
         const { data: gigData } = await api.get(
-          `http://localhost:5000/api/get-my-gigs/${user.userName}`
+          `${BASE_URL}/api/get-my-gigs/${user.userName}`
         );
         setGigs(gigData);
 
         const { data: profileData } = await api.get(
-          `http://localhost:5000/api/get-latest-profile`
+          `${BASE_URL}/api/get-latest-profile`
         );
         setProfiles((prevProfiles) => ({
           ...prevProfiles,
@@ -50,7 +50,7 @@ const MyGigsPage = () => {
         }));
 
         const { data: swapData } = await api.get(
-          `http://localhost:5000/api/get-swap-count/${user.userName}`
+          `${BASE_URL}/api/get-swap-count/${user.userName}`
         );
         setSwapCounts((prev) => ({
           ...prev,
@@ -77,7 +77,7 @@ const MyGigsPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await api.delete(`http://localhost:5000/api/delete-gig/${gigId}`);
+      await api.delete(`${BASE_URL}/api/delete-gig/${gigId}`);
       const updatedGigs = gigs.filter((gig) => gig._id !== gigId);
       setGigs(updatedGigs);
       setShowSuccess(true); // Show success modal
