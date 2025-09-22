@@ -19,6 +19,7 @@ import {
   FaChevronRight,
   FaCircle,
 } from "react-icons/fa";
+
 import { useSearchParams } from "next/navigation";
 import api from "../utils/api.js";
 import { useSocket } from "../contexts/SocketContext";
@@ -170,9 +171,7 @@ export default function MessageComponent() {
 
   const checkSwapStatusFromAPI = async (swapId) => {
     try {
-      const response = await api.get(
-        `https://backend-skillswap.vercel.app/api/swaps/${swapId}/status`
-      );
+      const response = await api.get(`${BASE_URL}/api/swaps/${swapId}/status`);
       const { bothCompleted, status } = response.data;
 
       console.log("API Status check:", { status, bothCompleted });
@@ -206,7 +205,7 @@ export default function MessageComponent() {
 
     try {
       const response = await api.put(
-        `http://localhost:5000/api/swaps/${swapId}/complete`
+        `${BASE_URL}/api/swaps/${swapId}/complete`
       );
 
       if (response.status === 200) {
@@ -690,7 +689,7 @@ export default function MessageComponent() {
   const handleDeleteSwapRequest = async (swapRequestId) => {
     try {
       const response = await api.delete(
-        `http://localhost:5000/api/swap-requests/${swapRequestId}`
+        `${BASE_URL}/api/swap-requests/${swapRequestId}`
       );
 
       if (response.status === 200) {
@@ -754,7 +753,7 @@ export default function MessageComponent() {
       console.log("Sending to API:", requestBody);
 
       const response = await api.post(
-        `http://localhost:5000/api/swap-requests/${acceptingSwapRequestId}/accept`,
+        `${BASE_URL}/api/swap-requests/${acceptingSwapRequestId}/accept`,
         requestBody
       );
 
@@ -786,7 +785,7 @@ export default function MessageComponent() {
         const roomName = [sender, originalRequest.user].sort().join("_");
 
         // Send to backend
-        await api.post("http://localhost:5000/message", {
+        await api.post(`${BASE_URL}/message`, {
           room: roomName,
           message: "Swap agreement created",
           sender,
@@ -828,9 +827,7 @@ export default function MessageComponent() {
   // Fetch Chat History - Enhanced to handle swap messages and check completion status
   const fetchChatHistory = async (user1, user2) => {
     try {
-      const res = await api.get(
-        `http://localhost:5000/messages/${user1}/${user2}`
-      );
+      const res = await api.get(`${BASE_URL}/messages/${user1}/${user2}`);
 
       console.log("=== FETCH CHAT HISTORY DEBUG ===");
       console.log("API Response length:", res.data.length);
@@ -910,19 +907,6 @@ export default function MessageComponent() {
   };
 
   // Fetch swap requests
-  const fetchSwapRequests = async () => {
-    if (!sender) return;
-
-    try {
-      const response = await api.get(
-        `http://localhost:5000/api/swap-requests/received/${sender}`
-      );
-      console.log("Fetched swap requests:", response.data);
-      setSwapRequests(response.data);
-    } catch (error) {
-      console.error("Error fetching swap requests:", error);
-    }
-  };
 
   // Initialize Sender and Room
   useEffect(() => {
@@ -953,17 +937,30 @@ export default function MessageComponent() {
 
   // Fetch Chat Users and Swap Requests
   useEffect(() => {
-    if (sender) {
-      api
-        .get(`http://localhost:5000/chats/${sender}`)
-        .then((res) => {
-          console.log("Fetched chat users:", res.data);
-          setChatUsers(res.data);
-        })
-        .catch((err) => console.error("Error fetching chat users:", err));
+    if (!sender) return;
 
-      fetchSwapRequests();
-    }
+    const fetchSwapRequests = async () => {
+      try {
+        const response = await api.get(
+          `${BASE_URL}/api/swap-requests/received/${sender}`
+        );
+        console.log("Fetched swap requests:", response.data);
+        setSwapRequests(response.data);
+      } catch (error) {
+        console.error("Error fetching swap requests:", error);
+      }
+    };
+
+    // Fetch chat users
+    api
+      .get(`${BASE_URL}/chats/${sender}`)
+      .then((res) => {
+        console.log("Fetched chat users:", res.data);
+        setChatUsers(res.data);
+      })
+      .catch((err) => console.error("Error fetching chat users:", err));
+
+    fetchSwapRequests();
   }, [sender]);
 
   // Fetch chat history when room + sender ready
@@ -978,7 +975,7 @@ export default function MessageComponent() {
   // Send message functions - Updated to check completion status
   const sendMessageToBackend = async ({ room, message, sender, recipient }) => {
     try {
-      await api.post("http://localhost:5000/message", {
+      await api.post(`${BASE_URL}/message`, {
         room,
         message,
         sender,
@@ -1046,12 +1043,9 @@ export default function MessageComponent() {
       if (allUsernames.length === 0) return;
 
       try {
-        const res = await api.post(
-          "http://localhost:5000/api/get-user-profiles",
-          {
-            usernames: allUsernames,
-          }
-        );
+        const res = await api.post(`${BASE_URL}api/get-user-profiles`, {
+          usernames: allUsernames,
+        });
 
         const profilesMap = {};
         res.data.forEach((profile) => {

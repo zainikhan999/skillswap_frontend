@@ -29,7 +29,6 @@ export default function ProfileWithSidebar() {
   const [totalSwaps, setTotalSwaps] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [profileDeleted, setProfileDeleted] = useState(false);
-  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchProfileData = async () => {
