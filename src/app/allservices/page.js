@@ -17,7 +17,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import SwapFormModal from "../components/swapformModel";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const AllGigs = () => {
   const router = useRouter();
   const [gigs, setGigs] = useState([]);

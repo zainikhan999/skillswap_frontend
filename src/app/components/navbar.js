@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useChat } from "../contexts/ChatContext"; // Import useChat to check if chat is open
 import api from "../utils/api";
 api.defaults.withCredentials = true;
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export default function Navbar() {
   const { socket, notification, setNotification } = useSocket(); // Access notification from context
   const [notificationCount, setNotificationCount] = useState(0);
@@ -48,6 +48,7 @@ export default function Navbar() {
         ]);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   // Handle socket notifications

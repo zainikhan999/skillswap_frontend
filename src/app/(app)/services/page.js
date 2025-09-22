@@ -15,7 +15,7 @@ import {
   FaUpload,
   FaSpinner,
 } from "react-icons/fa";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function GigUpload() {
   const router = useRouter();

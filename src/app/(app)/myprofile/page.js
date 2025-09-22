@@ -12,7 +12,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import UpdateProfile from "../updateProfile/page";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export default function ProfileWithSidebar() {
   const [formData, setFormData] = useState({
     name: "",

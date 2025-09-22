@@ -25,7 +25,7 @@ import { useAuth } from "contexts/AuthContext";
 import ErrorPopup from "../../components/errorPopup";
 import SuccessPopup from "../../components/successPopup";
 import throttle from "lodash/throttle";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dnmhfubvn/image/upload";
 const UPLOAD_PRESET = "displaypicture";
 

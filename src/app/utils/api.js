@@ -1,6 +1,6 @@
 // src/api.js
 import axios from "axios";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const api = axios.create({
   baseURL: "http://localhost:5000", // change this to your backend URL in prod
   withCredentials: true, // send cookies automatically

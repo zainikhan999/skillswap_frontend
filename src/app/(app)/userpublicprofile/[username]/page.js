@@ -4,7 +4,7 @@ import api from "../../../utils/api.js";
 api.defaults.withCredentials = true;
 import { useParams } from "next/navigation";
 import { FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function UserPublicProfile() {
   const { username } = useParams();

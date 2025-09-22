@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa"; // Importing icons
 import SuccessPopup from "../../components/successPopup"; // Adjust the import path as necessary
 import Link from "next/link";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const MyGigsPage = () => {
   const [gigs, setGigs] = useState([]);
   const [profiles, setProfiles] = useState({});

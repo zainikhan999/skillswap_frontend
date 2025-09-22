@@ -13,7 +13,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import api from "../../utils/api";
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export default function UpdateProfile({
   isOpen,
   onClose,
@@ -250,12 +250,9 @@ export default function UpdateProfile({
     setLoading(true);
     try {
       // Using api instead of direct fetch
-      const response = await api.delete(
-        `${BASE_URL}/api/delete-profile`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.delete(`${BASE_URL}/api/delete-profile`, {
+        withCredentials: true,
+      });
 
       if (response.status === 200) {
         onUpdateSuccess(null); // Profile deleted
