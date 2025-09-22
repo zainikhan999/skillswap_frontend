@@ -4,7 +4,7 @@ import io from "socket.io-client";
 
 // Create a context for the socket connection
 export const SocketContext = createContext();
-
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL; // Replace with your backend URL
 // Hook to use the socket context
 export const useSocket = () => useContext(SocketContext);
 
@@ -16,7 +16,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket connection on mount
-    const socketInstance = io("http://localhost:5000"); // Replace with your backend URL
+    const socketInstance = io(`${BASE_URL}`); // Replace with your backend URL
     socketRef.current = socketInstance;
     setSocket(socketInstance); // Set socket state
 
