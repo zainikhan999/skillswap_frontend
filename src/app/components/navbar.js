@@ -50,7 +50,7 @@ export default function Navbar() {
         ]);
       });
     }
-  }, [socket]);
+  }, [socket, setNotification]);
 
   // Handle socket notifications
   useEffect(() => {
