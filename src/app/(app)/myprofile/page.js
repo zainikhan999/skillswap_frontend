@@ -70,7 +70,7 @@ export default function ProfileWithSidebar() {
 
   useEffect(() => {
     fetchProfileData();
-  }, []);
+  }, [BASE_URL]);
 
   const handleUpdateSuccess = (updatedProfile) => {
     if (updatedProfile === null) {
