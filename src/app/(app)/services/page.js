@@ -54,7 +54,7 @@ export default function GigUpload() {
     setIsSubmitting(true);
 
     try {
-      const { data } = await api.post(`${BASE_URL}api/classify`, {
+      const { data } = await api.post(`${BASE_URL}/classify`, {
         text: formData.skillDescription,
       });
 
