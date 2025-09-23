@@ -1043,7 +1043,7 @@ export default function MessageComponent() {
       if (allUsernames.length === 0) return;
 
       try {
-        const res = await api.post(`${BASE_URL}api/get-user-profiles`, {
+        const res = await api.post(`${BASE_URL}/api/get-user-profiles`, {
           usernames: allUsernames,
         });
 
