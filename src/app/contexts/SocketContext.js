@@ -12,12 +12,12 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const socketRef = useRef(null); // Reference to store socket instance
   const [socket, setSocket] = useState(null); // Socket state
-  const [notification, setNotification] = useState([]); // Add notification state here
+  const [notification, setNBASE_URLotification] = useState([]); // Add notification state here
 
   useEffect(() => {
     // Initialize socket connection on mount
     // const socketInstance = io(`${BASE_URL}`); // Replace with your backend URL
-    const socketInstance = io(BACKEND_URL, {
+    const socketInstance = io(BASE_URL, {
       transports: ["polling", "websocket"],
       withCredentials: true,
       reconnection: true,
