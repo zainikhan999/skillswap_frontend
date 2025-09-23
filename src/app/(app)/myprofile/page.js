@@ -30,43 +30,41 @@ export default function ProfileWithSidebar() {
   const [showModal, setShowModal] = useState(false);
   const [profileDeleted, setProfileDeleted] = useState(false);
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) return;
+  const fetchProfileData = async () => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return;
 
-      const { userName } = JSON.parse(storedUser);
+    const { userName } = JSON.parse(storedUser);
 
-      try {
-        const [profileRes, gigsRes, swapCountRes] = await Promise.all([
-          api.get(`${BASE_URL}/api/get-latest-profile`, {
-            withCredentials: true,
-          }),
-          api.get(`${BASE_URL}/api/get-my-gigs/${userName}`, {
-            withCredentials: true,
-          }),
-          api.get(`${BASE_URL}/api/get-swap-count/${userName}`, {
-            withCredentials: true,
-          }),
-        ]);
+    try {
+      const [profileRes, gigsRes, swapCountRes] = await Promise.all([
+        api.get(`${BASE_URL}/api/get-latest-profile`, {
+          withCredentials: true,
+        }),
+        api.get(`${BASE_URL}/api/get-my-gigs/${userName}`, {
+          withCredentials: true,
+        }),
+        api.get(`${BASE_URL}/api/get-swap-count/${userName}`, {
+          withCredentials: true,
+        }),
+      ]);
 
-        setFormData(profileRes.data);
-        setGigs(gigsRes.data);
-        setTotalSwaps(swapCountRes.data.swapCount);
-        setLoading(false);
-        setProfileDeleted(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        if (error.response?.status === 404) setProfileDeleted(true);
-        setLoading(false);
-      }
-    };
+      setFormData(profileRes.data);
+      setGigs(gigsRes.data);
+      setTotalSwaps(swapCountRes.data.swapCount);
+      setLoading(false);
+      setProfileDeleted(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      if (error.response?.status === 404) setProfileDeleted(true);
+      setLoading(false);
+    }
+  };
 
-    fetchProfileData();
-  }, [BASE_URL]); // You can even safely leave it as [] if BASE_URL never changes
   useEffect(() => {
     fetchProfileData();
-  }, [fetchProfileData]);
+  }, [BASE_URL]); // only runs when BASE_URL changes
+
   const handleUpdateSuccess = (updatedProfile) => {
     if (updatedProfile === null) {
       // Profile was deleted
