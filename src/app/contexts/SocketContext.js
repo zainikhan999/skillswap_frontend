@@ -16,7 +16,16 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket connection on mount
-    const socketInstance = io(`${BASE_URL}`); // Replace with your backend URL
+    // const socketInstance = io(`${BASE_URL}`); // Replace with your backend URL
+    const socketInstance = io(BACKEND_URL, {
+      transports: ["polling", "websocket"],
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
+    });
     socketRef.current = socketInstance;
     setSocket(socketInstance); // Set socket state
 
