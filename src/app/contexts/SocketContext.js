@@ -12,7 +12,7 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const socketRef = useRef(null); // Reference to store socket instance
   const [socket, setSocket] = useState(null); // Socket state
-  const [notification, setNBASE_URLotification] = useState([]); // Add notification state here
+  const [notification, setNotification] = useState([]); // Add notification state here
 
   useEffect(() => {
     // Initialize socket connection on mount
