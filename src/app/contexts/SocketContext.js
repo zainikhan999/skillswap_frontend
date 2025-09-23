@@ -16,9 +16,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Initialize socket connection on mount
-    const socketInstance = io(`${BASE_URL}`, {
-      path: "/api/socket", // ← This is the crucial change
-    }); // Replace with your backend URL
+    const socketInstance = io(`${BASE_URL}`); // Replace with your backend URL
     socketRef.current = socketInstance;
     setSocket(socketInstance); // Set socket state
 
