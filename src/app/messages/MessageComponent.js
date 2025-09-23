@@ -829,9 +829,6 @@ export default function MessageComponent() {
     try {
       const res = await api.get(`${BASE_URL}/messages/${user1}/${user2}`);
 
-      console.log("=== FETCH CHAT HISTORY DEBUG ===");
-      console.log("API Response length:", res.data.length);
-
       let foundSwapId = null;
       let latestSwapStatus = null;
 
@@ -883,9 +880,6 @@ export default function MessageComponent() {
           return null;
         })
         .filter(Boolean);
-
-      console.log("Total formatted messages:", formattedMessages.length);
-      console.log("Latest swap status from history:", latestSwapStatus);
 
       setMessages(formattedMessages);
 
