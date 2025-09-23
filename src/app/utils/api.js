@@ -42,7 +42,7 @@ let csrfToken = null;
 // Function to fetch fresh CSRF token
 const fetchCSRFToken = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/csrf-token`, {
+    const response = await api.get(`${BASE_URL}/api/csrf-token`, {
       withCredentials: true,
     });
     csrfToken = response.data.csrfToken;
