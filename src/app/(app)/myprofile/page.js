@@ -346,12 +346,6 @@ export default function ProfileWithSidebar() {
                           {gig.exchangeService}
                         </span>
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <button className="text-green-600 hover:text-green-700 font-medium text-sm hover:underline">
-                          View Details
-                        </button>
-                      </div>
                     </div>
                   </div>
                 ))}
