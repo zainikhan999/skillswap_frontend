@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   IoAddCircleSharp,
   IoCheckmarkCircle,
@@ -47,7 +49,14 @@ export default function SwapDashboard() {
     completed: 0,
     cancelled: 0,
   });
+  const router = useRouter();
 
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -60,7 +69,9 @@ export default function SwapDashboard() {
       }
     } else {
       setLoading(false);
-      setErrorMessage("User not logged in");
+      return;
+
+      // setErrorMessage("User not logged in");
     }
   }, []);
 
@@ -561,15 +572,36 @@ export default function SwapDashboard() {
                             <h4 className="font-bold text-orange-800 text-lg mb-1">
                               Partial Completion Status
                             </h4>
-                            <p className="text-orange-700">
+                            <div className="text-orange-700 space-y-1">
+                              {/* Check completion status based on current user's role */}
+                              {isRequester ? (
+                                <>
+                                  {swap.requesterCompleted && (
+                                    <div>✓ You completed your part</div>
+                                  )}
+                                  {swap.responderCompleted && (
+                                    <div>✓ They completed their part</div>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {swap.responderCompleted && (
+                                    <div>✓ You completed your part</div>
+                                  )}
+                                  {swap.requesterCompleted && (
+                                    <div>✓ They completed their part</div>
+                                  )}
+                                </>
+                              )}
+
+                              {/* Show completion message */}
                               {swap.requesterCompleted &&
-                                " You completed your part ✓"}
-                              {swap.responderCompleted &&
-                                " They completed their part ✓"}
-                              {swap.requesterCompleted &&
-                                swap.responderCompleted &&
-                                " Both parties completed! ✓"}
-                            </p>
+                                swap.responderCompleted && (
+                                  <div className="font-semibold text-green-700 mt-2">
+                                    🎉 Both parties completed their tasks!
+                                  </div>
+                                )}
+                            </div>
                           </div>
                         </div>
                       </div>

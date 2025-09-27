@@ -546,26 +546,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Footer and feature highlights remain the same */}
-        <div className="text-center mt-8">
-          <p className="text-gray-500 leading-relaxed">
-            By signing in, you agree to our{" "}
-            <Link
-              href="/terms"
-              className="text-green-600 hover:underline font-semibold"
-            >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="text-green-600 hover:underline font-semibold"
-            >
-              Privacy Policy
-            </Link>
-          </p>
-        </div>
-
         <div className="grid grid-cols-3 gap-4 mt-10 px-4">
           <div className="text-center">
             <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-2">

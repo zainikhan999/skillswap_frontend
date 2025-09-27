@@ -8,7 +8,7 @@ import {
   FaHandshake,
   FaArrowRight,
 } from "react-icons/fa";
-
+import Link from "next/link";
 const steps = [
   {
     title: "Sign Up",
@@ -233,14 +233,16 @@ export default function HowItWorksSection() {
               Join thousands of learners and experts already swapping skills on
               our platform.
             </p>
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-full hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <FaUserPlus className="w-5 h-5" />
-              Get Started Now
-            </motion.button>
+            <Link href="/login">
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-full hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <FaUserPlus className="w-5 h-5" />
+                Get Started Now
+              </motion.button>
+            </Link>
           </div>
         </motion.div>
       </div>

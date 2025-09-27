@@ -13,6 +13,8 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import api from "../../utils/api";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../../contexts/AuthContext";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 export default function UpdateProfile({
   isOpen,
@@ -34,6 +36,14 @@ export default function UpdateProfile({
   const [loading, setLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
+
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
   useEffect(() => {
     if (currentProfile && isOpen) {

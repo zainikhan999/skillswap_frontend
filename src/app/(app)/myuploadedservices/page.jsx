@@ -49,9 +49,7 @@ const MyGigsPage = () => {
           [user.userName]: profileData,
         }));
 
-        const { data: swapData } = await api.get(
-          `${BASE_URL}/api/get-swap-count/${user.userName}`
-        );
+        const { data: swapData } = await api.get(`${BASE_URL}/api/swaps`);
         setSwapCounts((prev) => ({
           ...prev,
           [user.userName]: swapData.swapCount || 0,
@@ -136,7 +134,7 @@ const MyGigsPage = () => {
 
             {/* Add New Service Button */}
             <Link
-              href="/add-service"
+              href="/services"
               className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 w-fit mx-auto md:mx-0"
             >
               <FaPlus className="text-sm" />
@@ -251,7 +249,7 @@ const MyGigsPage = () => {
               skill to share with the community!
             </p>
             <Link
-              href="/add-service"
+              href="/services"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <FaPlus className="text-sm" />

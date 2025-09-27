@@ -5,13 +5,22 @@ api.defaults.withCredentials = true;
 import { useParams } from "next/navigation";
 import { FaUserCircle, FaMapMarkerAlt } from "react-icons/fa";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
+import { useAuth } from "../../../contexts/AuthContext.js";
+import { useRouter } from "next/navigation";
 export default function UserPublicProfile() {
   const { username } = useParams();
   const [formData, setFormData] = useState(null);
   const [gigs, setGigs] = useState([]);
   const [totalSwaps, setTotalSwaps] = useState(0);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {

@@ -12,8 +12,19 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import UpdateProfile from "../updateProfile/page";
+import { useAuth } from "../../contexts/AuthContext";
+import { useRouter } from "next/navigation";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export default function ProfileWithSidebar() {
+  const router = useRouter();
+
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -27,6 +38,7 @@ export default function ProfileWithSidebar() {
   const [gigs, setGigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalSwaps, setTotalSwaps] = useState(0);
+  const [completedSwaps, setCompletedSwaps] = useState(0); // Add separate state for completed swaps
   const [showModal, setShowModal] = useState(false);
   const [profileDeleted, setProfileDeleted] = useState(false);
 
@@ -37,21 +49,31 @@ export default function ProfileWithSidebar() {
     const { userName } = JSON.parse(storedUser);
 
     try {
-      const [profileRes, gigsRes, swapCountRes] = await Promise.all([
+      const [profileRes, gigsRes, swapsRes] = await Promise.all([
         api.get(`${BASE_URL}/api/get-latest-profile`, {
           withCredentials: true,
         }),
         api.get(`${BASE_URL}/api/get-my-gigs/${userName}`, {
           withCredentials: true,
         }),
-        api.get(`${BASE_URL}/api/get-swap-count/${userName}`, {
+        // Use the same endpoint as SwapDashboard to get all swaps
+        api.get(`${BASE_URL}/api/swaps`, {
           withCredentials: true,
         }),
       ]);
 
       setFormData(profileRes.data);
       setGigs(gigsRes.data);
-      setTotalSwaps(swapCountRes.data.swapCount);
+
+      // Calculate swap counts from the swaps data
+      if (swapsRes.data.swaps) {
+        const swapData = swapsRes.data.swaps;
+        setTotalSwaps(swapData.length);
+        setCompletedSwaps(
+          swapData.filter((s) => s.status === "completed").length
+        );
+      }
+
       setLoading(false);
       setProfileDeleted(false);
     } catch (error) {
@@ -63,11 +85,10 @@ export default function ProfileWithSidebar() {
 
   useEffect(() => {
     fetchProfileData();
-  }, [BASE_URL]); // only runs when BASE_URL changes
+  }, [BASE_URL]);
 
   const handleUpdateSuccess = (updatedProfile) => {
     if (updatedProfile === null) {
-      // Profile was deleted
       setProfileDeleted(true);
       setFormData({
         name: "",
@@ -81,8 +102,8 @@ export default function ProfileWithSidebar() {
       });
       setGigs([]);
       setTotalSwaps(0);
+      setCompletedSwaps(0);
     } else {
-      // Profile was updated
       setFormData(updatedProfile);
       setProfileDeleted(false);
     }
@@ -163,17 +184,24 @@ export default function ProfileWithSidebar() {
                 @{formData.username.toLowerCase()}
               </p>
 
-              {/* Stats Cards */}
+              {/* Stats Cards - Updated to show completed swaps */}
               <div className="grid grid-cols-2 gap-3 mt-6">
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-                  <div className="text-2xl font-bold">{totalSwaps}</div>
-                  <div className="text-white/80 text-xs">Swaps</div>
+                  <div className="text-2xl font-bold">{completedSwaps}</div>
+                  <div className="text-white/80 text-xs">Completed</div>
                 </div>
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
                   <div className="text-2xl font-bold">
                     {formData.skills.length}
                   </div>
                   <div className="text-white/80 text-xs">Skills</div>
+                </div>
+              </div>
+
+              {/* Optional: Add total swaps as well */}
+              <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-xl p-2 text-center">
+                <div className="text-sm font-medium">
+                  Total Swaps: {totalSwaps}
                 </div>
               </div>
             </div>
@@ -231,7 +259,7 @@ export default function ProfileWithSidebar() {
           </div>
         </div>
 
-        {/* Main Content with Enhanced Design */}
+        {/* Rest of the component remains the same */}
         <div className="flex-1 flex flex-col">
           {/* Header Section */}
           <div className="p-8 border-b border-gray-100">
@@ -320,10 +348,6 @@ export default function ProfileWithSidebar() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-500 text-sm">
-                          <FaCheck className="text-green-600" />
-                          <span>{totalSwaps} successful swaps</span>
-                        </div>
                         <button className="text-green-600 hover:text-green-700 font-medium text-sm hover:underline">
                           View Details
                         </button>

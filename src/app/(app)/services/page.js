@@ -33,6 +33,12 @@ export default function GigUpload() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
@@ -249,17 +255,6 @@ export default function GigUpload() {
                 )}
               </button>
             </form>
-          </div>
-
-          {/* Footer Note */}
-          <div className="text-center mt-8">
-            <p className="text-gray-600 text-sm">
-              By creating a service, you agree to our{" "}
-              <Link href="/terms" className="text-green-600 hover:underline">
-                community guidelines
-              </Link>{" "}
-              and commit to respectful skill exchanges.
-            </p>
           </div>
         </div>
       </div>
