@@ -38,7 +38,7 @@ export default function SignUp() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/profile");
+      router.push("/allservices");
     }
   }, [isAuthenticated, router]);
 
