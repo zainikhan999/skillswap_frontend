@@ -317,26 +317,6 @@ export default function SignUp() {
               </span>
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="text-center mt-8">
-            <p className="text-gray-500">
-              By creating an account, you agree to our{" "}
-              <Link
-                href="/terms"
-                className="text-green-600 hover:underline font-semibold"
-              >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/privacy"
-                className="text-green-600 hover:underline font-semibold"
-              >
-                Privacy Policy
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
 
