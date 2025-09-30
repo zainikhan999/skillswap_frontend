@@ -32,6 +32,12 @@ const UPLOAD_PRESET = "displaypicture";
 export default function ProfileForm() {
   const router = useRouter();
 
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
   const [formData, setFormData] = useState({
     name: "",
     username: "",
