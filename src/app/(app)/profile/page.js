@@ -60,6 +60,22 @@ export default function ProfileForm() {
     skills: [""],
     profileImage: "",
   });
+  const throttledFetchSuggestion = useRef(
+    throttle(async (text) => {
+      if (!text.trim()) {
+        setSuggestion("");
+        return;
+      }
+      try {
+        const res = await api.post(`${BASE_URL}/api/suggest-bio`, {
+          text,
+        });
+        setSuggestion(res.data.suggestion || "");
+      } catch (error) {
+        setSuggestion("");
+      }
+    }, 2000) // throttle limit: 2 seconds
+  ).current;
 
   useEffect(() => {
     // Wait for AuthContext to resolve
@@ -129,23 +145,6 @@ export default function ProfileForm() {
       }
     }
   };
-
-  const throttledFetchSuggestion = useRef(
-    throttle(async (text) => {
-      if (!text.trim()) {
-        setSuggestion("");
-        return;
-      }
-      try {
-        const res = await api.post(`${BASE_URL}/api/suggest-bio`, {
-          text,
-        });
-        setSuggestion(res.data.suggestion || "");
-      } catch (error) {
-        setSuggestion("");
-      }
-    }, 2000) // throttle limit: 2 seconds
-  ).current;
 
   const acceptSuggestion = () => {
     const currentBio = formData.bio;
