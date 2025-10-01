@@ -50,6 +50,17 @@ export default function ProfileForm() {
   const [loadingAI, setLoadingAI] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    city: "",
+    country: "Pakistan",
+    contactNumber: "",
+    bio: "",
+    skills: [""],
+    profileImage: "",
+  });
+
   useEffect(() => {
     // Wait for AuthContext to resolve
     if (user === undefined) return; // still loading
@@ -71,17 +82,6 @@ export default function ProfileForm() {
       </div>
     );
   }
-
-  const [formData, setFormData] = useState({
-    name: "",
-    username: "",
-    city: "",
-    country: "Pakistan",
-    contactNumber: "",
-    bio: "",
-    skills: [""],
-    profileImage: "",
-  });
 
   const generateBioFromPrompt = async () => {
     if (!aiPrompt.trim()) {
