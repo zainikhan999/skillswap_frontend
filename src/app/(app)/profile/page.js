@@ -34,7 +34,22 @@ export default function ProfileForm() {
   const { user } = useAuth();
 
   const [checkingAuth, setCheckingAuth] = useState(true);
-
+  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [errorPopup, setErrorPopup] = useState({ show: false, message: "" });
+  const [successPopup, setSuccessPopup] = useState({
+    show: false,
+    message: "",
+  });
+  const [suggestion, setSuggestion] = useState("");
+  const debounceTimeout = useRef(null);
+  const maxWords = 100;
+  const [bioWordCount, setBioWordCount] = useState(0);
+  const [showAIPrompt, setShowAIPrompt] = useState(false);
+  const [aiPrompt, setAIPrompt] = useState("");
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   useEffect(() => {
     // Wait for AuthContext to resolve
     if (user === undefined) return; // still loading
@@ -67,23 +82,6 @@ export default function ProfileForm() {
     skills: [""],
     profileImage: "",
   });
-
-  const [image, setImage] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [errorPopup, setErrorPopup] = useState({ show: false, message: "" });
-  const [successPopup, setSuccessPopup] = useState({
-    show: false,
-    message: "",
-  });
-  const [suggestion, setSuggestion] = useState("");
-  const debounceTimeout = useRef(null);
-  const maxWords = 100;
-  const [bioWordCount, setBioWordCount] = useState(0);
-  const [showAIPrompt, setShowAIPrompt] = useState(false);
-  const [aiPrompt, setAIPrompt] = useState("");
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   const generateBioFromPrompt = async () => {
     if (!aiPrompt.trim()) {
