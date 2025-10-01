@@ -31,12 +31,31 @@ const UPLOAD_PRESET = "displaypicture";
 
 export default function ProfileForm() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
+    // Wait for AuthContext to resolve
+    if (user === undefined) return; // still loading
     if (!user) {
-      router.push("/login");
+      router.push("/signup");
+    } else {
+      setCheckingAuth(false);
     }
   }, [user, router]);
+
+  if (checkingAuth) {
+    // Show SkillSwap activity indicator
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50">
+        <div className="flex flex-col items-center gap-4">
+          <FaSpinner className="animate-spin text-green-600 text-4xl" />
+          <p className="text-gray-600 font-semibold">Sign up to continue...</p>
+        </div>
+      </div>
+    );
+  }
 
   const [formData, setFormData] = useState({
     name: "",
@@ -51,7 +70,6 @@ export default function ProfileForm() {
 
   const [image, setImage] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
-  const { user } = useAuth();
   const [errorPopup, setErrorPopup] = useState({ show: false, message: "" });
   const [successPopup, setSuccessPopup] = useState({
     show: false,
