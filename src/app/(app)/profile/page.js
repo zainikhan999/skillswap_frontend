@@ -86,7 +86,24 @@ export default function ProfileForm() {
       setCheckingAuth(false);
     }
   }, [user, router]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setFormData((prev) => ({
+          ...prev,
+          username: parsedUser.userName || "",
+        }));
+      }
+    }
+  }, []);
   if (checkingAuth) {
     // Show SkillSwap activity indicator
     return (
@@ -169,25 +186,6 @@ export default function ProfileForm() {
   };
 
   const countWords = (text) => text.trim().split(/\s+/).filter(Boolean).length;
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
-  }, [user, router]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setFormData((prev) => ({
-          ...prev,
-          username: parsedUser.userName || "",
-        }));
-      }
-    }
-  }, []);
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
