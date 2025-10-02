@@ -211,23 +211,53 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
 
   const NotificationDropdown = () => (
     <div
-      key={index}
-      onClick={() => {
-        // If it's a message notification, navigate to that chat
-        if (notif.type === "message" && notif.sender) {
-          router.push(`/messages?recipient=${notif.sender}`);
-          setIsNotificationDropdownOpen(false);
-          setIsMobileMenuOpen(false);
-        }
-      }}
-      className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${
-        !notif.seen ? "bg-blue-50 border-l-blue-500" : "border-l-transparent"
-      }`}
+      className={`absolute ${
+        isCollapsed ? "left-16" : "right-4"
+      } top-0 mt-2 bg-white shadow-2xl rounded-2xl w-80 py-4 z-50 border border-gray-100`}
     >
-      <p className="text-gray-800 text-sm leading-relaxed">{notif.message}</p>
-      <p className="text-xs text-gray-500 mt-1">
-        {new Date(notif.createdAt).toLocaleDateString()}
-      </p>
+      <div className="flex items-center justify-between px-6 pb-3 border-b border-gray-100">
+        <h3 className="font-bold text-lg text-gray-900">Notifications</h3>
+        <button
+          onClick={() => setIsNotificationDropdownOpen(false)}
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <FiX className="text-gray-500" />
+        </button>
+      </div>
+      <div className="max-h-96 overflow-y-auto">
+        {notification.length > 0 ? (
+          notification.map((notif, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                // If it's a message notification, navigate to that chat
+                if (notif.type === "message" && notif.sender) {
+                  router.push(`/messages?recipient=${notif.sender}`);
+                  setIsNotificationDropdownOpen(false);
+                  setIsMobileMenuOpen(false);
+                }
+              }}
+              className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${
+                !notif.seen
+                  ? "bg-blue-50 border-l-blue-500"
+                  : "border-l-transparent"
+              }`}
+            >
+              <p className="text-gray-800 text-sm leading-relaxed">
+                {notif.message}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {new Date(notif.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          ))
+        ) : (
+          <div className="px-6 py-8 text-center">
+            <FiBell className="mx-auto text-gray-300 text-3xl mb-3" />
+            <p className="text-gray-500">No notifications yet</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 
