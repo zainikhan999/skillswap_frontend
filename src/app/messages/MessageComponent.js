@@ -176,11 +176,9 @@ export default function MessageComponent() {
 
       console.log("API Status check:", { status, bothCompleted });
 
-      // Only update if we don't have a more recent status from sockets
-      if (!currentSwapStatus || currentSwapStatus !== status) {
-        setCurrentSwapStatus(status);
-        setIsChatDisabled(bothCompleted);
-      }
+      // API is always source of truth
+      setCurrentSwapStatus(status);
+      setIsChatDisabled(bothCompleted);
 
       return { bothCompleted, status };
     } catch (error) {
@@ -867,7 +865,7 @@ export default function MessageComponent() {
               seen: msg.seen,
             };
           }
-          // Handle regular messages (skip swap type messages)
+          // Handle regular messages
           else if (msg.type !== "swap") {
             return {
               text: msg.message,
@@ -883,23 +881,23 @@ export default function MessageComponent() {
 
       setMessages(formattedMessages);
 
-      // Only set initial status if we don't already have a current status
-      // This prevents overriding socket updates
-      if (!currentSwapStatus && latestSwapStatus) {
+      // ALWAYS check API for most up-to-date status if we found a swap
+      if (foundSwapId) {
+        const { bothCompleted, status } = await checkSwapStatusFromAPI(
+          foundSwapId
+        );
+        // API status is the source of truth
+        setCurrentSwapStatus(status);
+        setIsChatDisabled(bothCompleted);
+      } else if (latestSwapStatus) {
+        // Fallback to message-based status only if no swap found
         setCurrentSwapStatus(latestSwapStatus);
         setIsChatDisabled(latestSwapStatus === "completed");
-      }
-
-      // Double-check swap status from API if we found a swap
-      // But don't override if we already have a current status from sockets
-      if (foundSwapId && !currentSwapStatus) {
-        setTimeout(() => checkSwapStatusFromAPI(foundSwapId), 100);
       }
     } catch (err) {
       console.error("Failed to load chat history:", err);
     }
   };
-
   // Fetch swap requests
 
   // Initialize Sender and Room
