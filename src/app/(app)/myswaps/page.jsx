@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../../utils/api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
+import Link from "next/link";
 import {
   IoAddCircleSharp,
   IoCheckmarkCircle,
@@ -51,12 +52,27 @@ export default function SwapDashboard() {
   });
   const router = useRouter();
 
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const isRedirecting = useRef(false);
   useEffect(() => {
+    if (authLoading || isRedirecting.current) return;
+
     if (!user) {
-      router.push("/login");
+      isRedirecting.current = true;
+      router.replace("/login");
+      return;
     }
-  }, [user, router]);
+    if (!user.emailVerified) {
+      isRedirecting.current = true;
+      router.replace("/signup");
+      return;
+    }
+    if (!user.profileCompleted) {
+      isRedirecting.current = true;
+      router.replace("/profile");
+      return;
+    }
+  }, [user, authLoading, router]);
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -384,13 +400,15 @@ export default function SwapDashboard() {
                   ? "Start your skill swapping journey today and connect with amazing people!"
                   : `You don't have any ${activeFilter} swaps at the moment`}
               </p>
-              <button
-                onClick={() => (window.location.href = "/services")}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-3 mx-auto"
-              >
-                <FaRocket />
-                Start Your First Swap
-              </button>
+              <Link href="/services">
+                <button
+                  // onClick={() => (window.location.href = "/services")}
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-xl hover:scale-105 flex items-center gap-3 mx-auto"
+                >
+                  <FaRocket />
+                  Start Your First Swap
+                </button>
+              </Link>
             </div>
           ) : (
             filteredSwaps.map((swap) => {
@@ -636,17 +654,15 @@ export default function SwapDashboard() {
 
         {/* Enhanced Floating Add Button */}
         <div className="fixed bottom-8 right-8 z-50">
-          <button
-            onClick={() => (window.location.href = "/services")}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white p-6 rounded-3xl shadow-2xl hover:shadow-green-300/50 transform hover:scale-110 transition-all duration-300 flex items-center justify-center relative overflow-hidden group"
-            title="Create New Swap"
-          >
-            <div className="absolute inset-0 bg-white/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <IoAddCircleSharp className="text-4xl relative z-10" />
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-              <FaPlus className="text-white text-xs" />
-            </div>
-          </button>
+          <Link href="/services">
+            <button
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white p-6 rounded-3xl shadow-2xl hover:shadow-green-300/50 transform hover:scale-110 transition-all duration-300 flex items-center justify-center relative overflow-hidden group"
+              title="Create New Swap"
+            >
+              <div className="absolute inset-0 bg-white/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <IoAddCircleSharp className="text-4xl relative z-10" />
+            </button>
+          </Link>
         </div>
 
         {/* Trust Indicators */}

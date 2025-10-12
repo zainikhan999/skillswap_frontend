@@ -42,6 +42,41 @@ export default function SignUp() {
     }
   }, [isAuthenticated, router]);
 
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setErrorMessage("");
+  //   setIsLoading(true);
+
+  //   try {
+  //     const response = await api.post(`${BASE_URL}/api/signup`, {
+  //       userName,
+  //       firstName,
+  //       lastName,
+  //       email,
+  //       password,
+  //     });
+
+  //     if (response.status === 201) {
+  //       const userData = { userName, firstName, lastName, email };
+  //       login(userData);
+  //       setShowPopup(true);
+
+  //       setTimeout(() => {
+  //         setShowPopup(false);
+  //         router.push("/profile");
+  //       }, 3000);
+  //     }
+  //   } catch (error) {
+  //     const data = error.response?.data;
+  //     if (data && typeof data === "object" && "message" in data) {
+  //       setErrorMessage(data.message);
+  //     } else {
+  //       setErrorMessage("Signup failed. Please try again.");
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
@@ -56,15 +91,21 @@ export default function SignUp() {
         password,
       });
 
-      if (response.status === 201) {
-        const userData = { userName, firstName, lastName, email };
-        login(userData);
-        setShowPopup(true);
+      if (response.status === 200) {
+        // Redirect to verify-email page with email and temp data
+        const tempData = encodeURIComponent(
+          JSON.stringify({
+            userName,
+            firstName,
+            lastName,
+            email,
+            password,
+          })
+        );
 
-        setTimeout(() => {
-          setShowPopup(false);
-          router.push("/profile");
-        }, 3000);
+        router.push(
+          `/verifyemail?email=${encodeURIComponent(email)}&tempData=${tempData}`
+        );
       }
     } catch (error) {
       const data = error.response?.data;

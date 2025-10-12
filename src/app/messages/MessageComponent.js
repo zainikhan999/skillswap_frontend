@@ -18,6 +18,8 @@ import {
   FaSearch,
   FaChevronRight,
   FaCircle,
+  FaHandPointRight,
+  FaGift,
 } from "react-icons/fa";
 
 import { useSearchParams } from "next/navigation";
@@ -57,6 +59,10 @@ export default function MessageComponent() {
   const messagesEndRef = useRef(null);
   const [currentSwapStatus, setCurrentSwapStatus] = useState(null);
   const [isChatDisabled, setIsChatDisabled] = useState(false);
+  const searchParams = useSearchParams();
+  const { activeChat, toggleChat, closeChat } = useChat(); // ✅ Add closeChat here
+  const [isProposeTimeOpen, setIsProposeTimeOpen] = useState(false);
+  const [currentSwapDetails, setCurrentSwapDetails] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -64,12 +70,49 @@ export default function MessageComponent() {
     }
   }, [user, router]);
 
-  const searchParams = useSearchParams();
-  const { isChatOpen, toggleChat } = useChat();
-  const [isProposeTimeOpen, setIsProposeTimeOpen] = useState(false);
+  useEffect(() => {
+    return () => {
+      if (closeChat) {
+        closeChat(); // Clear active chat when leaving messages page
+      }
+    };
+  }, [closeChat]);
 
+  // Notify backend when actively viewing a chat
+  // In MessageComponent.jsx - this is already correct in your code
+  // Add this ref at the top of your component
+  const lastViewingChatRef = useRef(null);
+
+  // Replace your viewing_chat useEffect with this:
+  useEffect(() => {
+    if (!recipient || !socketRef.current || !sender) return;
+
+    // Only emit if we're switching to a different chat
+    if (lastViewingChatRef.current === recipient) {
+      return; // Already viewing this chat, don't re-emit
+    }
+
+    console.log(`Viewing chat with ${recipient}`);
+    socketRef.current.emit("viewing_chat", {
+      viewer: sender,
+      chattingWith: recipient,
+    });
+
+    // Update the ref to track current chat
+    lastViewingChatRef.current = recipient;
+
+    // Cleanup: only runs when recipient changes or component unmounts
+    return () => {
+      if (socketRef.current && lastViewingChatRef.current === recipient) {
+        console.log(`Left chat with ${recipient}`);
+        socketRef.current.emit("left_chat", {
+          viewer: sender,
+        });
+        lastViewingChatRef.current = null;
+      }
+    };
+  }, [recipient, sender]); // Removed socketRef from dependencies
   // Add state for tracking current swap details
-  const [currentSwapDetails, setCurrentSwapDetails] = useState(null);
 
   useEffect(() => {
     if (!room) return;
@@ -136,6 +179,7 @@ export default function MessageComponent() {
       socket.off("receive_message", handleMessage);
     };
   }, [room, socket, isChatDisabled]);
+  // Near the top with other hooks
 
   // Function to extract swap ID from messages and check completion status
   const getCurrentSwapStatus = () => {
@@ -192,7 +236,6 @@ export default function MessageComponent() {
     return isChatDisabled; // Use state instead of checking messages
   };
 
-  // Complete Swap Handler - Updated to disable messaging
   const handleCompleteSwap = async () => {
     const { swapId } = getCurrentSwapStatus();
 
@@ -209,47 +252,78 @@ export default function MessageComponent() {
       if (response.status === 200) {
         const { bothCompleted, swap } = response.data;
 
-        // IMMEDIATELY update state
         setCurrentSwapStatus(swap.status);
         setIsChatDisabled(bothCompleted);
 
-        // Update messages
-        setMessages((prev) =>
-          prev.map((msg) => {
-            if (
-              msg.type === "swap_details" &&
-              msg.swapData?.swapId === swapId
-            ) {
-              return {
-                ...msg,
-                swapData: {
-                  ...msg.swapData,
-                  status: swap.status,
-                },
-              };
-            }
-            return msg;
-          })
-        );
-
         if (bothCompleted) {
-          alert(
-            "Swap fully completed! Both parties have marked it complete. Chat is now closed."
-          );
+          // Both completed - emit system message
+          const systemMessage = `🎉 Swap FULLY COMPLETED! Both parties have marked their tasks complete. This chat is now closed.`;
+
+          socketRef.current.emit("message", {
+            room,
+            message: systemMessage,
+            sender: "system",
+            recipient,
+            type: "system",
+          });
+
+          // Save system message to backend
+          await api.post(`${BASE_URL}/message`, {
+            room,
+            message: systemMessage,
+            sender: "system",
+            recipient,
+            type: "system",
+          });
+
+          // Clear the chat
+          localStorage.removeItem("chatWith");
+          setChatUsers((prev) => prev.filter((user) => user !== recipient));
+          setRecipient(null);
+          setMessages([]);
+
+          if (closeChat) {
+            closeChat();
+          }
+
+          alert("Swap fully completed! Chat has been closed.");
         } else {
+          // Partial completion - emit system message
+          const systemMessage = `${sender} marked their part complete. Waiting for ${recipient} to complete their part.`;
+
+          socketRef.current.emit("message", {
+            room,
+            message: systemMessage,
+            sender: "system",
+            recipient,
+            type: "system",
+          });
+
+          // Save system message to backend
+          await api.post(`${BASE_URL}/message`, {
+            room,
+            message: systemMessage,
+            sender: "system",
+            recipient,
+            type: "system",
+          });
+
           alert(
-            "Your part of the swap has been marked as complete. Waiting for the other party to complete their part."
+            "Your part has been marked as complete. Waiting for the other party."
           );
         }
 
-        // Refresh chat history
-        setTimeout(() => fetchChatHistory(sender, recipient), 500);
+        setTimeout(() => {
+          if (!bothCompleted && recipient) {
+            fetchChatHistory(sender, recipient);
+          }
+        }, 500);
       }
     } catch (error) {
       console.error("Error completing swap:", error);
-      const errorMessage =
-        error.response?.data?.message || "Failed to complete swap";
-      alert(`Error: ${errorMessage}`);
+      alert(
+        `Error: ${error.response?.data?.message || "Failed to complete swap"}`
+      );
     }
   };
 
@@ -617,8 +691,34 @@ export default function MessageComponent() {
   }, [messages]);
 
   // Handle recipient selection for chats
+  // const handleRecipientClick = (user) => {
+  //   if (user === sender) return;
+
+  //   if (typeof window !== "undefined") {
+  //     localStorage.setItem("chatWith", user);
+  //   }
+
+  //   const newUrl = `?recipient=${user}`;
+  //   router.push(newUrl);
+
+  //   const newRoom = [sender, user].sort().join("_");
+  //   setRoom(newRoom);
+  //   setRecipient(user);
+  //   setSelectedSwapRequest(null);
+  //   setActiveTab("chats");
+
+  //   // Close sidebar on mobile after selection
+  //   setSidebarOpen(false);
+
+  //   toggleChat(user);
+  //   setTimeout(() => fetchChatHistory(sender, user), 100);
+  // };
   const handleRecipientClick = (user) => {
-    if (user === sender) return;
+    // Prevent user from chatting with themselves
+    if (user === sender) {
+      alert("You cannot start a chat with yourself!");
+      return;
+    }
 
     if (typeof window !== "undefined") {
       localStorage.setItem("chatWith", user);
@@ -715,23 +815,121 @@ export default function MessageComponent() {
   };
 
   // Replace your handleSubmitSwap function with this:
+  // const handleSubmitSwap = async (swapDetails) => {
+  //   console.log("handleSubmitSwap called with:", swapDetails);
+
+  //   if (!swapDetails) {
+  //     console.error("swapDetails is undefined!");
+  //     alert("Error: Form data is missing. Please try again.");
+  //     return;
+  //   }
+
+  //   if (!acceptingSwapRequestId) {
+  //     console.error("acceptingSwapRequestId is missing!");
+  //     alert("Error: No swap request ID found");
+  //     return;
+  //   }
+
+  //   try {
+  //     // Get the original request details
+  //     const originalRequest = swapRequests.find(
+  //       (req) => req.id === acceptingSwapRequestId
+  //     );
+
+  //     if (!originalRequest) {
+  //       alert("Original swap request not found");
+  //       return;
+  //     }
+
+  //     const requestBody = {
+  //       taskName: swapDetails.taskName,
+  //       timeRequired: parseInt(swapDetails.timeRequired),
+  //       description: swapDetails.description,
+  //       deadline: swapDetails.deadline,
+  //     };
+
+  //     console.log("Sending to API:", requestBody);
+
+  //     const response = await api.post(
+  //       `${BASE_URL}/api/swap-requests/${acceptingSwapRequestId}/accept`,
+  //       requestBody
+  //     );
+
+  //     if (response.status === 200) {
+  //       // NOW remove the request from the list since API call succeeded
+  //       setSwapRequests((prev) =>
+  //         prev.filter((req) => req.id !== acceptingSwapRequestId)
+  //       );
+
+  //       // Create swap details object for the message
+  //       const swapDetailsMessage = {
+  //         swapId: response.data.swapId || acceptingSwapRequestId,
+  //         status: "accepted",
+  //         requesterTask: {
+  //           taskName: originalRequest.taskName,
+  //           description: originalRequest.description,
+  //           timeRequired: originalRequest.timeRequired,
+  //           deadline: originalRequest.deadline,
+  //         },
+  //         responderTask: {
+  //           taskName: swapDetails.taskName,
+  //           description: swapDetails.description,
+  //           timeRequired: swapDetails.timeRequired,
+  //           deadline: swapDetails.deadline,
+  //         },
+  //       };
+
+  //       // Send the swap details message to the chat
+  //       const roomName = [sender, originalRequest.user].sort().join("_");
+
+  //       // Send to backend
+  //       await api.post(`${BASE_URL}/message`, {
+  //         room: roomName,
+  //         message: "Swap agreement created",
+  //         sender,
+  //         recipient: originalRequest.user,
+  //         type: "swap_details",
+  //         swapData: swapDetailsMessage,
+  //       });
+
+  //       // Emit via socket
+  //       socketRef.current.emit("message", {
+  //         room: roomName,
+  //         message: "Swap agreement created",
+  //         sender,
+  //         recipient: originalRequest.user,
+  //         type: "swap_details",
+  //         swapData: swapDetailsMessage,
+  //       });
+
+  //       // Close modal and switch to the chat
+  //       setIsModalOpen(false);
+  //       setAcceptingSwapRequestId(null);
+
+  //       // Switch to the chat with this user
+  //       handleRecipientClick(originalRequest.user);
+
+  //       // Fetch updated chat history
+  //       setTimeout(() => fetchChatHistory(sender, originalRequest.user), 500);
+
+  //       alert("Swap accepted successfully!");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error accepting swap:", error);
+  //     const errorMessage =
+  //       error.response?.data?.message || "Failed to accept swap request";
+  //     alert(`Error: ${errorMessage}`);
+  //   }
+  // };
   const handleSubmitSwap = async (swapDetails) => {
     console.log("handleSubmitSwap called with:", swapDetails);
 
-    if (!swapDetails) {
-      console.error("swapDetails is undefined!");
-      alert("Error: Form data is missing. Please try again.");
-      return;
-    }
-
-    if (!acceptingSwapRequestId) {
-      console.error("acceptingSwapRequestId is missing!");
-      alert("Error: No swap request ID found");
+    if (!swapDetails || !acceptingSwapRequestId) {
+      alert("Error: Missing required data");
       return;
     }
 
     try {
-      // Get the original request details
       const originalRequest = swapRequests.find(
         (req) => req.id === acceptingSwapRequestId
       );
@@ -748,20 +946,16 @@ export default function MessageComponent() {
         deadline: swapDetails.deadline,
       };
 
-      console.log("Sending to API:", requestBody);
-
       const response = await api.post(
         `${BASE_URL}/api/swap-requests/${acceptingSwapRequestId}/accept`,
         requestBody
       );
 
       if (response.status === 200) {
-        // NOW remove the request from the list since API call succeeded
         setSwapRequests((prev) =>
           prev.filter((req) => req.id !== acceptingSwapRequestId)
         );
 
-        // Create swap details object for the message
         const swapDetailsMessage = {
           swapId: response.data.swapId || acceptingSwapRequestId,
           status: "accepted",
@@ -779,54 +973,70 @@ export default function MessageComponent() {
           },
         };
 
-        // Send the swap details message to the chat
         const roomName = [sender, originalRequest.user].sort().join("_");
 
-        // Send to backend
-        await api.post(`${BASE_URL}/message`, {
-          room: roomName,
-          message: "Swap agreement created",
-          sender,
-          recipient: originalRequest.user,
-          type: "swap_details",
-          swapData: swapDetailsMessage,
-        });
+        // ✅ Send to backend with correct field names
+        try {
+          await api.post(`${BASE_URL}/message`, {
+            // Using /message not /api/message
+            room: roomName,
+            message: "Swap agreement created",
+            sender: sender,
+            recipient: originalRequest.user,
+            type: "swap_details",
+            swapData: swapDetailsMessage,
+          });
+          console.log("✅ Message saved to database");
+        } catch (msgError) {
+          console.error("Error sending message to backend:", msgError);
+        }
 
         // Emit via socket
-        socketRef.current.emit("message", {
-          room: roomName,
-          message: "Swap agreement created",
-          sender,
-          recipient: originalRequest.user,
-          type: "swap_details",
-          swapData: swapDetailsMessage,
-        });
+        if (socketRef.current) {
+          socketRef.current.emit("message", {
+            room: roomName,
+            message: "Swap agreement created",
+            sender: sender,
+            recipient: originalRequest.user,
+            type: "swap_details",
+            swapData: swapDetailsMessage,
+          });
+          console.log("✅ Message emitted via socket");
+        }
 
-        // Close modal and switch to the chat
+        // Close modal
         setIsModalOpen(false);
         setAcceptingSwapRequestId(null);
 
-        // Switch to the chat with this user
+        // Add user to chatUsers immediately
+        if (!chatUsers.includes(originalRequest.user)) {
+          setChatUsers((prev) => [...prev, originalRequest.user]);
+        }
+
+        // Switch to the chat
         handleRecipientClick(originalRequest.user);
 
-        // Fetch updated chat history
-        setTimeout(() => fetchChatHistory(sender, originalRequest.user), 500);
+        // Fetch updated chat history after a delay
+        setTimeout(() => {
+          fetchChatHistory(sender, originalRequest.user);
+        }, 1000);
 
         alert("Swap accepted successfully!");
       }
     } catch (error) {
       console.error("Error accepting swap:", error);
-      const errorMessage =
-        error.response?.data?.message || "Failed to accept swap request";
-      alert(`Error: ${errorMessage}`);
+      alert(
+        `Error: ${
+          error.response?.data?.message || "Failed to accept swap request"
+        }`
+      );
     }
   };
-
   // Fetch Chat History - Enhanced to handle swap messages and check completion status
   const fetchChatHistory = async (user1, user2) => {
     try {
-      const res = await api.get(`${BASE_URL}/messages/${user1}/${user2}`);
-
+      const chatroomId = [user1, user2].sort().join("_");
+      const res = await api.get(`${BASE_URL}/api/messages/${chatroomId}`);
       let foundSwapId = null;
       let latestSwapStatus = null;
 
@@ -901,6 +1111,32 @@ export default function MessageComponent() {
   // Fetch swap requests
 
   // Initialize Sender and Room
+  // useEffect(() => {
+  //   let parsedUser = null;
+  //   if (typeof window !== "undefined") {
+  //     const storedUser = localStorage.getItem("user");
+  //     if (storedUser) {
+  //       parsedUser = JSON.parse(storedUser);
+  //       setSender(parsedUser.userName);
+  //     }
+  //   }
+
+  //   const recipientFromURL = searchParams.get("recipient");
+  //   if (parsedUser) {
+  //     let recipient = recipientFromURL;
+  //     if (!recipient) {
+  //       recipient = localStorage.getItem("chatWith");
+  //     } else {
+  //       localStorage.setItem("chatWith", recipientFromURL);
+  //     }
+  //     if (recipient) {
+  //       const roomName = [parsedUser.userName, recipient].sort().join("_");
+  //       setRoom(roomName);
+  //       setRecipient(recipient);
+  //     }
+  //   }
+  // }, [searchParams]);
+
   useEffect(() => {
     let parsedUser = null;
     if (typeof window !== "undefined") {
@@ -919,15 +1155,21 @@ export default function MessageComponent() {
       } else {
         localStorage.setItem("chatWith", recipientFromURL);
       }
-      if (recipient) {
+
+      // Prevent setting up room with self
+      if (recipient && recipient !== parsedUser.userName) {
         const roomName = [parsedUser.userName, recipient].sort().join("_");
         setRoom(roomName);
         setRecipient(recipient);
+      } else if (recipient === parsedUser.userName) {
+        // Clear invalid chat attempt
+        localStorage.removeItem("chatWith");
+        router.push("/messages");
+        alert("You cannot chat with yourself!");
       }
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
-  // Fetch Chat Users and Swap Requests
   useEffect(() => {
     if (!sender) return;
 
@@ -936,22 +1178,56 @@ export default function MessageComponent() {
         const response = await api.get(
           `${BASE_URL}/api/swap-requests/received/${sender}`
         );
-        console.log("Fetched swap requests:", response.data);
         setSwapRequests(response.data);
       } catch (error) {
         console.error("Error fetching swap requests:", error);
       }
     };
 
-    // Fetch chat users
-    api
-      .get(`${BASE_URL}/chats/${sender}`)
-      .then((res) => {
-        console.log("Fetched chat users:", res.data);
-        setChatUsers(res.data);
-      })
-      .catch((err) => console.error("Error fetching chat users:", err));
+    // Fetch users with accepted swaps only
+    const fetchChatUsers = async () => {
+      try {
+        // Get all users who have messaged with sender
+        const chatsResponse = await api.get(`${BASE_URL}/chats/${sender}`);
 
+        // For each user, check if they have an active swap
+        const usersWithActiveSwaps = [];
+
+        for (const username of chatsResponse.data) {
+          if (username === sender) continue;
+
+          try {
+            // Check messages for swap_details type
+            const chatroomId = [sender, username].sort().join("_");
+            const messagesResponse = await api.get(
+              `${BASE_URL}/api/messages/${chatroomId}`
+            );
+
+            // Check if there's a swap message with accepted/completed status
+            const hasActiveSwap = messagesResponse.data.some(
+              (msg) =>
+                msg.type === "swap_details" &&
+                ["accepted", "partially_completed", "completed"].includes(
+                  msg.swapData?.status
+                )
+            );
+
+            if (hasActiveSwap) {
+              usersWithActiveSwaps.push(username);
+            }
+          } catch (err) {
+            console.log(`Could not check swap status for ${username}`);
+          }
+        }
+
+        setChatUsers(usersWithActiveSwaps);
+      } catch (err) {
+        console.error("Error fetching chat users:", err);
+        setChatUsers([]);
+      }
+    };
+
+    fetchChatUsers();
     fetchSwapRequests();
   }, [sender]);
 
@@ -967,18 +1243,112 @@ export default function MessageComponent() {
   // Send message functions - Updated to check completion status
   const sendMessageToBackend = async ({ room, message, sender, recipient }) => {
     try {
-      await api.post(`${BASE_URL}/message`, {
-        room,
+      await api.post(`${BASE_URL}/api/message`, {
+        chatroomId: room,
         message,
         sender,
-        recipient,
+        receiver: recipient,
+        type: "message",
       });
     } catch (error) {
       console.error("Error sending message to backend:", error);
     }
   };
 
+  // const handleSendMessage = async () => {
+  //   if (isMessagingDisabled()) {
+  //     alert(
+  //       "This conversation has been closed. No further messages can be sent."
+  //     );
+  //     return;
+  //   }
+
+  //   if (message.trim() && socketRef.current && recipient) {
+  //     const roomName = [sender, recipient].sort().join("_");
+
+  //     socketRef.current.emit("join_room", roomName);
+
+  //     try {
+  //       await sendMessageToBackend({
+  //         room: roomName,
+  //         message,
+  //         sender,
+  //         recipient,
+  //       });
+
+  //       socketRef.current.emit("message", {
+  //         room: roomName,
+  //         message,
+  //         sender,
+  //         recipient,
+  //       });
+
+  //       setRoom(roomName);
+  //       setMessage("");
+  //     } catch (error) {
+  //       console.error("Error sending message:", error);
+  //     }
+  //   }
+  // };
+  // const handleSendMessage = async () => {
+  //   if (isMessagingDisabled()) {
+  //     alert(
+  //       "This conversation has been closed. No further messages can be sent."
+  //     );
+  //     return;
+  //   }
+
+  //   if (message.trim() && socketRef.current && recipient) {
+  //     const roomName = [sender, recipient].sort().join("_");
+
+  //     // 🔍 ADD THIS DEBUG LOG
+  //     console.log("💬 Sending message:", {
+  //       sender,
+  //       recipient,
+  //       room: roomName,
+  //       message: message.substring(0, 30),
+  //     });
+
+  //     socketRef.current.emit("join_room", roomName);
+
+  //     try {
+  //       await sendMessageToBackend({
+  //         room: roomName,
+  //         message,
+  //         sender,
+  //         recipient,
+  //       });
+
+  //       socketRef.current.emit("message", {
+  //         room: roomName,
+  //         message,
+  //         sender,
+  //         recipient,
+  //       });
+
+  //       setRoom(roomName);
+  //       setMessage("");
+  //     } catch (error) {
+  //       console.error("Error sending message:", error);
+  //     }
+  //   } else {
+  //     // 🔍 ADD THIS TOO
+  //     console.error("❌ Cannot send - missing data:", {
+  //       hasMessage: !!message.trim(),
+  //       hasSocket: !!socketRef.current,
+  //       hasRecipient: !!recipient,
+  //       sender,
+  //       recipient,
+  //     });
+  //   }
+  // };
   const handleSendMessage = async () => {
+    // Check if trying to message self
+    if (recipient === sender) {
+      alert("You cannot send messages to yourself!");
+      return;
+    }
+
     if (isMessagingDisabled()) {
       alert(
         "This conversation has been closed. No further messages can be sent."
@@ -988,6 +1358,13 @@ export default function MessageComponent() {
 
     if (message.trim() && socketRef.current && recipient) {
       const roomName = [sender, recipient].sort().join("_");
+
+      console.log("💬 Sending message:", {
+        sender,
+        recipient,
+        room: roomName,
+        message: message.substring(0, 30),
+      });
 
       socketRef.current.emit("join_room", roomName);
 
@@ -1011,9 +1388,16 @@ export default function MessageComponent() {
       } catch (error) {
         console.error("Error sending message:", error);
       }
+    } else {
+      console.error("❌ Cannot send - missing data:", {
+        hasMessage: !!message.trim(),
+        hasSocket: !!socketRef.current,
+        hasRecipient: !!recipient,
+        sender,
+        recipient,
+      });
     }
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -1505,6 +1889,7 @@ export default function MessageComponent() {
                 </button>
               </div>
             </div>
+            {/* Enhanced Swap Request Details - Mobile-first design with Green Theme */}
 
             {/* Enhanced Swap Request Details - Mobile-first design with Green Theme */}
             <div className="flex-1 overflow-y-auto bg-gradient-to-b from-green-50 to-white p-4">
@@ -1545,55 +1930,102 @@ export default function MessageComponent() {
 
                   {/* Request Details */}
                   <div className="p-6 space-y-6">
-                    {/* Task Name */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        Task Name
-                      </label>
-                      <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <p className="text-gray-900 font-medium text-lg">
-                          {selectedSwapRequest.taskName}
-                        </p>
+                    {/* What They Need Section */}
+                    <div className="bg-green-50 border-2 border-green-200 rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <FaHandPointRight className="text-green-600 text-lg" />
+                        <h3 className="text-lg font-bold text-green-800">
+                          What They Need from You
+                        </h3>
                       </div>
-                    </div>
 
-                    {/* Description */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                        Description
-                      </label>
-                      <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <p className="text-gray-900 leading-relaxed">
-                          {selectedSwapRequest.description}
-                        </p>
-                      </div>
-                    </div>
+                      <div className="space-y-4">
+                        {/* Skill Needed */}
+                        <div>
+                          <label className="block text-sm font-semibold text-green-900 mb-2">
+                            Skill/Service Needed
+                          </label>
+                          <div className="bg-white p-3 rounded-lg border border-green-200">
+                            <p className="text-gray-900 font-medium">
+                              {selectedSwapRequest.taskName}
+                            </p>
+                          </div>
+                        </div>
 
-                    {/* Time and Deadline */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                          Time Required
-                        </label>
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                          <p className="text-2xl font-bold text-green-600">
-                            {selectedSwapRequest.timeRequired}
-                          </p>
-                          <p className="text-sm text-gray-500">hours</p>
+                        {/* Task Details */}
+                        <div>
+                          <label className="block text-sm font-semibold text-green-900 mb-2">
+                            Task Details
+                          </label>
+                          <div className="bg-white p-3 rounded-lg border border-green-200">
+                            <p className="text-gray-900 leading-relaxed">
+                              {selectedSwapRequest.description.includes(
+                                "WHAT I NEED:"
+                              )
+                                ? selectedSwapRequest.description
+                                    .split("WHAT I OFFER:")[0]
+                                    .replace("WHAT I NEED:", "")
+                                    .trim()
+                                : selectedSwapRequest.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Deadline */}
+                        <div>
+                          <label className="block text-sm font-semibold text-green-900 mb-2">
+                            Deadline
+                          </label>
+                          <div className="bg-white p-3 rounded-lg border border-green-200 text-center">
+                            <p className="text-lg font-semibold text-gray-900">
+                              {new Date(
+                                selectedSwapRequest.deadline
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
                       </div>
+                    </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-                          Deadline
-                        </label>
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                          <p className="text-lg font-semibold text-gray-900">
-                            {new Date(
-                              selectedSwapRequest.deadline
-                            ).toLocaleDateString()}
-                          </p>
-                          <p className="text-sm text-gray-500">deadline</p>
+                    {/* What They Offer Section */}
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <FaGift className="text-blue-600 text-lg" />
+                        <h3 className="text-lg font-bold text-blue-800">
+                          What They'll Offer in Return
+                        </h3>
+                      </div>
+
+                      <div className="space-y-4">
+                        {/* Offer Details */}
+                        <div>
+                          <label className="block text-sm font-semibold text-blue-900 mb-2">
+                            Their Offer
+                          </label>
+                          <div className="bg-white p-3 rounded-lg border border-blue-200">
+                            <p className="text-gray-900 leading-relaxed">
+                              {selectedSwapRequest.description.includes(
+                                "WHAT I OFFER:"
+                              )
+                                ? selectedSwapRequest.description
+                                    .split("WHAT I OFFER:")[1]
+                                    .trim()
+                                : "Details will be provided"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Hours Offered */}
+                        <div>
+                          <label className="block text-sm font-semibold text-blue-900 mb-2">
+                            Time They'll Provide
+                          </label>
+                          <div className="bg-white p-3 rounded-lg border border-blue-200 text-center">
+                            <p className="text-2xl font-bold text-blue-600">
+                              {selectedSwapRequest.timeRequired}
+                            </p>
+                            <p className="text-sm text-gray-500">hours</p>
+                          </div>
                         </div>
                       </div>
                     </div>

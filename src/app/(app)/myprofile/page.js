@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../../utils/api";
 api.defaults.withCredentials = true;
 import {
@@ -10,21 +10,38 @@ import {
   FaStar,
   FaCheck,
   FaEdit,
+  FaPlus,
 } from "react-icons/fa";
 import UpdateProfile from "../updateProfile/page";
 import { useAuth } from "../../contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function ProfileWithSidebar() {
   const router = useRouter();
 
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const isRedirecting = useRef(false);
   useEffect(() => {
+    if (authLoading || isRedirecting.current) return;
+
     if (!user) {
-      router.push("/login");
+      isRedirecting.current = true;
+      router.replace("/login");
+      return;
     }
-  }, [user, router]);
+    if (!user.emailVerified) {
+      isRedirecting.current = true;
+      router.replace("/signup");
+      return;
+    }
+    if (!user.profileCompleted) {
+      isRedirecting.current = true;
+      router.replace("/profile");
+      return;
+    }
+  }, [user, authLoading, router]);
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -138,7 +155,7 @@ export default function ProfileWithSidebar() {
             profile anytime.
           </p>
           <button
-            onClick={() => (window.location.href = "/profile/create")}
+            onClick={() => (window.location.href = "/profile")}
             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
           >
             Create New Profile
@@ -362,9 +379,13 @@ export default function ProfileWithSidebar() {
                   Start offering your skills to the community and connect with
                   other learners!
                 </p>
-                <button className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
+                <Link
+                  href="/services"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <FaPlus className="text-sm" />
                   Add Your First Service
-                </button>
+                </Link>
               </div>
             )}
           </div>

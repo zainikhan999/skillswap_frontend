@@ -99,14 +99,24 @@ export function useAuth() {
 // Provider component
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    // Only run on client side
+    if (typeof window !== "undefined") {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error("Error loading user from localStorage:", error);
+        localStorage.removeItem("user"); // Clear corrupted data
+      } finally {
+        setLoading(false);
+      }
     }
-    setLoading(false); // Set loading to false after checking localStorage
   }, []);
 
   const login = (userData) => {
@@ -119,11 +129,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+  };
+
   const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated, loading }}
+      value={{ user, login, logout, updateUser, isAuthenticated, loading }}
     >
       {children}
     </AuthContext.Provider>

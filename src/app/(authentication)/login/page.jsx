@@ -4,6 +4,9 @@ import { loginUser } from "../../utils/api"; // Use the new login function
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import Link from "next/link";
+// searchParams;
+import { useSearchParams } from "next/navigation";
+
 import {
   FaUser,
   FaLock,
@@ -27,7 +30,8 @@ export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
   const { user } = useAuth();
-
+  const searchParams = useSearchParams();
+  const [successMessage, setSuccessMessage] = useState("");
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -35,6 +39,20 @@ export default function Login() {
       router.push("/allservices");
     }
   }, [user, router]);
+  useEffect(() => {
+    const verified = searchParams.get("verified");
+    const reset = searchParams.get("reset");
+
+    if (verified === "true") {
+      setSuccessMessage("Email verified successfully! You can now login.");
+    }
+
+    if (reset === "success") {
+      setSuccessMessage(
+        "Password reset successfully! Please login with your new password."
+      );
+    }
+  }, [searchParams]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -49,13 +67,43 @@ export default function Login() {
         password,
       });
 
-      const { message, userType } = response.data;
+      // ✅ FIXED: Extract ALL fields from backend response
+      const {
+        message,
+        userType,
+        _id,
+        userName: backendUserName,
+        emailVerified, // ✅ Add this
+        profileCompleted, // ✅ Add this
+        firstName, // ✅ Add this (optional but good to have)
+        lastName, // ✅ Add this (optional but good to have)
+      } = response.data;
+
       console.log("Login Response:", response.data);
 
-      const userData = { userName };
+      // ✅ FIXED: Store ALL fields including verification status
+      const userData = {
+        userId: _id,
+        userName: backendUserName,
+        userType: userType || "user",
+        emailVerified: emailVerified, // ✅ Add this
+        profileCompleted: profileCompleted, // ✅ Add this
+        firstName: firstName, // ✅ Add this
+        lastName: lastName, // ✅ Add this
+      };
+
+      // Store in localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Update auth context
       login(userData);
 
-      if (userType === "user") {
+      // ✅ Better routing logic
+      if (!emailVerified) {
+        router.push("/signup?verified=false");
+      } else if (!profileCompleted) {
+        router.push("/fillprofile");
+      } else if (userType === "user") {
         router.push("/allservices");
       }
     } catch (error) {
@@ -65,7 +113,7 @@ export default function Login() {
         message: error.message,
       });
 
-      // Better error handling
+      // Error handling remains the same
       if (error.response?.status === 403) {
         if (error.response.data?.code === "CSRF_ERROR") {
           setErrorMessage("Security token expired. Please try again.");
@@ -133,6 +181,13 @@ export default function Login() {
 
         {/* Login Form */}
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/50">
+          {successMessage && (
+            <div className="bg-green-50 border-2 border-green-200 p-4 rounded-2xl shadow-lg mb-6">
+              <p className="text-green-700 font-medium text-center">
+                {successMessage}
+              </p>
+            </div>
+          )}
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Username Field */}
             <div>
@@ -234,7 +289,7 @@ export default function Login() {
 
           <div className="mt-6 flex justify-center">
             <Link
-              href="/forgot-password"
+              href="/forgotpassword"
               className="text-gray-500 hover:text-green-600 transition-colors duration-300 font-medium"
             >
               Forgot your password?

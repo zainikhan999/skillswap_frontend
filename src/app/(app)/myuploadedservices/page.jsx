@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../../utils/api"; // Adjust the path if necessary"
 api.defaults.withCredentials = true;
 import { useAuth } from "../../contexts/AuthContext"; // Adjust the import path as necessary
@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa"; // Importing icons
 import SuccessPopup from "../../components/successPopup"; // Adjust the import path as necessary
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const MyGigsPage = () => {
   const [gigs, setGigs] = useState([]);
@@ -23,8 +24,28 @@ const MyGigsPage = () => {
   const [swapCounts, setSwapCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const { user } = useAuth();
-  console.log("User:", user);
+  const { user, loading: authLoading } = useAuth();
+  const isRedirecting = useRef(false);
+  const router = useRouter();
+  useEffect(() => {
+    if (authLoading || isRedirecting.current) return;
+
+    if (!user) {
+      isRedirecting.current = true;
+      router.replace("/login");
+      return;
+    }
+    if (!user.emailVerified) {
+      isRedirecting.current = true;
+      router.replace("/signup");
+      return;
+    }
+    if (!user.profileCompleted) {
+      isRedirecting.current = true;
+      router.replace("/profile");
+      return;
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     const fetchUserGigsAndProfile = async () => {

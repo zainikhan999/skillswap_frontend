@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSocket } from "../contexts/SocketContext";
+import { createPortal } from "react-dom"; // Add this import at the top
+
 import {
   FiBell,
   FiMail,
@@ -37,8 +39,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { isChatOpen } = useChat();
-
+  const { activeChat } = useChat();
   const memoizedSetNotification = useCallback(setNotification, [
     setNotification,
   ]);
@@ -81,6 +82,28 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
       socket.emit("my-room", user.userName);
     }
   }, [socket, user]);
+
+  // Also update the notification count to exclude current chat
+  useEffect(() => {
+    if (notification && Array.isArray(notification)) {
+      const unreadCount = notification.filter((notif) => {
+        if (notif.seen) return false;
+
+        // Exclude notifications from current active chat
+        if (
+          notif.type === "message" &&
+          activeChat &&
+          notif.sender === activeChat
+        ) {
+          return false;
+        }
+
+        return true;
+      }).length;
+
+      setNotificationCount(unreadCount);
+    }
+  }, [notification, activeChat]); // Add activeChat to dependencies
 
   const toggleNotificationDropdown = async () => {
     setIsNotificationDropdownOpen((prev) => !prev);
@@ -209,57 +232,98 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
     </div>
   );
 
-  const NotificationDropdown = () => (
-    <div
-      className={`absolute ${
-        isCollapsed ? "left-16" : "right-4"
-      } top-0 mt-2 bg-white shadow-2xl rounded-2xl w-80 py-4 z-50 border border-gray-100`}
-    >
-      <div className="flex items-center justify-between px-6 pb-3 border-b border-gray-100">
-        <h3 className="font-bold text-lg text-gray-900">Notifications</h3>
-        <button
-          onClick={() => setIsNotificationDropdownOpen(false)}
-          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+  const NotificationDropdown = () => {
+    // Get current chat recipient from URL or ChatContext
+    const currentRecipient = activeChat; // From useChat context
+
+    // Filter out notifications from the person we're currently chatting with
+    const displayNotifications = notification.filter((notif) => {
+      // Always show non-message notifications
+      if (notif.type !== "message") return true;
+
+      // Hide message notifications from current active chat
+      if (currentRecipient && notif.sender === currentRecipient) {
+        return false;
+      }
+
+      return true;
+    });
+
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+      setMounted(true);
+      return () => setMounted(false);
+    }, []);
+
+    if (!mounted) return null;
+
+    const dropdownContent = (
+      <div
+        className="fixed inset-0 z-[100]"
+        onClick={() => setIsNotificationDropdownOpen(false)}
+      >
+        <div
+          className="fixed top-20 right-4 bg-white shadow-2xl rounded-2xl w-80 py-4 border border-gray-100"
+          onClick={(e) => e.stopPropagation()}
         >
-          <FiX className="text-gray-500" />
-        </button>
-      </div>
-      <div className="max-h-96 overflow-y-auto">
-        {notification.length > 0 ? (
-          notification.map((notif, index) => (
-            <div
-              key={index}
-              onClick={() => {
-                // If it's a message notification, navigate to that chat
-                if (notif.type === "message" && notif.sender) {
-                  router.push(`/messages?recipient=${notif.sender}`);
-                  setIsNotificationDropdownOpen(false);
-                  setIsMobileMenuOpen(false);
-                }
-              }}
-              className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${
-                !notif.seen
-                  ? "bg-blue-50 border-l-blue-500"
-                  : "border-l-transparent"
-              }`}
+          <div className="flex items-center justify-between px-6 pb-3 border-b border-gray-100">
+            <h3 className="font-bold text-lg text-gray-900">Notifications</h3>
+            <button
+              onClick={() => setIsNotificationDropdownOpen(false)}
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <p className="text-gray-800 text-sm leading-relaxed">
-                {notif.message}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {new Date(notif.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          ))
-        ) : (
-          <div className="px-6 py-8 text-center">
-            <FiBell className="mx-auto text-gray-300 text-3xl mb-3" />
-            <p className="text-gray-500">No notifications yet</p>
+              <FiX className="text-gray-500" />
+            </button>
           </div>
-        )}
+          <div className="max-h-96 overflow-y-auto">
+            {displayNotifications.length > 0 ? (
+              displayNotifications.map((notif, index) => (
+                <div
+                  key={notif._id || `notif-${index}-${notif.timestamp}`}
+                  onClick={() => {
+                    console.log("🔔 Notification clicked:", {
+                      notifSender: notif.sender,
+                      notifRecipient: notif.recipient,
+                      currentUser: user?.userName,
+                      redirectingTo: notif.sender,
+                    });
+
+                    if (notif.type === "message" && notif.sender) {
+                      router.push(`/messages?recipient=${notif.sender}`);
+                      setIsNotificationDropdownOpen(false);
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
+                  className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${
+                    !notif.seen
+                      ? "bg-blue-50 border-l-blue-500"
+                      : "border-l-transparent"
+                  }`}
+                >
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    {notif.message}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(
+                      notif.createdAt || notif.timestamp
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="px-6 py-8 text-center">
+                <FiBell className="mx-auto text-gray-300 text-3xl mb-3" />
+                <p className="text-gray-500">No notifications yet</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+
+    return createPortal(dropdownContent, document.body);
+  };
 
   if (!user) return null;
 
