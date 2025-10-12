@@ -398,7 +398,7 @@ export default function SwapDashboard() {
               <p className="text-gray-600 text-lg mb-8 max-w-md mx-auto">
                 {activeFilter === "all"
                   ? "Start your skill swapping journey today and connect with amazing people!"
-                  : `You don't have any ${activeFilter} swaps at the moment`}
+                  : `You don&apos;t have any ${activeFilter} swaps at the moment`}
               </p>
               <Link href="/services">
                 <button

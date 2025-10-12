@@ -266,8 +266,8 @@ const MyGigsPage = () => {
               No Services Yet
             </h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              You haven't created any services yet. Start by adding your first
-              skill to share with the community!
+              You haven&apos;t created any services yet. Start by adding your
+              first skill to share with the community!
             </p>
             <Link
               href="/services"

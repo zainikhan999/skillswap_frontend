@@ -1992,7 +1992,7 @@ export default function MessageComponent() {
                       <div className="flex items-center gap-2 mb-4">
                         <FaGift className="text-blue-600 text-lg" />
                         <h3 className="text-lg font-bold text-blue-800">
-                          What They'll Offer in Return
+                          What They&apos;ll Offer in Return
                         </h3>
                       </div>
 
@@ -2018,7 +2018,7 @@ export default function MessageComponent() {
                         {/* Hours Offered */}
                         <div>
                           <label className="block text-sm font-semibold text-blue-900 mb-2">
-                            Time They'll Provide
+                            Time They&apos;ll Provide
                           </label>
                           <div className="bg-white p-3 rounded-lg border border-blue-200 text-center">
                             <p className="text-2xl font-bold text-blue-600">

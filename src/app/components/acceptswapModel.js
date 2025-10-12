@@ -351,7 +351,7 @@ export default function AcceptSwapModal({
             Accept Swap Request
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Confirm what you'll do and what you need in return
+            Confirm what you&apos;ll do and what you need in return
           </p>
         </div>
 
@@ -383,7 +383,7 @@ export default function AcceptSwapModal({
             <div className="flex items-center gap-1 mb-2">
               <FaGift className="text-blue-600 text-xs" />
               <h3 className="font-semibold text-xs text-blue-800">
-                What You'll Do for {recipient}
+                What You&apos;ll Do for {recipient}
               </h3>
             </div>
 
@@ -403,7 +403,7 @@ export default function AcceptSwapModal({
 
               <div>
                 <label className="text-xs font-medium text-blue-900 block mb-0.5">
-                  Hours You'll Provide
+                  Hours You&apos;ll Provide
                 </label>
                 <input
                   type="number"

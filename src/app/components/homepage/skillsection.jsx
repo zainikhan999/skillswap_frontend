@@ -311,7 +311,7 @@ export default function PopularSkillsSection() {
         <div className="text-center mt-20 space-y-6">
           <div className="space-y-4">
             <h3 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              Don't See Your{" "}
+              Don&apos;t See Your{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
                 Skill?
               </span>

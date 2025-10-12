@@ -434,7 +434,7 @@ export default function SwapFormModal({
             <div className="flex items-center gap-1 mb-2">
               <FaGift className="text-blue-600 text-xs" />
               <h3 className="font-semibold text-xs text-blue-800">
-                What You'll Offer in Return
+                What You&apos;ll Offer in Return
               </h3>
             </div>
 
@@ -454,7 +454,7 @@ export default function SwapFormModal({
 
               <div>
                 <label className="text-xs font-medium text-blue-900 block mb-0.5">
-                  Hours You'll Provide
+                  Hours You&apos;ll Provide
                 </label>
                 <input
                   type="number"

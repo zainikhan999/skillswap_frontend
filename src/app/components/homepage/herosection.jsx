@@ -29,7 +29,7 @@ export default function HeroSection() {
             <div className="inline-flex items-center gap-2 px-3 py-2 lg:px-4 lg:py-2 bg-green-100 text-green-700 rounded-full text-xs lg:text-sm font-medium border border-green-200">
               <FaHeart className="text-green-600 w-4 h-4" />
               <span className="hidden sm:inline">
-                Pakistan's First AI-Powered Platform
+                Pakistan&apos;s First AI-Powered Platform
               </span>
               <span className="sm:hidden">AI-Powered Platform</span>
             </div>
@@ -46,8 +46,8 @@ export default function HeroSection() {
               </h1>
 
               <p className="text-base sm:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Trade your skills with passionate learners. Whether you're a
-                developer learning art or a musician exploring coding—
+                Trade your skills with passionate learners. Whether you&apos;re
+                a developer learning art or a musician exploring coding—
                 <span className="font-semibold text-green-600">
                   {" "}
                   SkillSwap connects you.

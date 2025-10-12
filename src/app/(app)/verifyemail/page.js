@@ -355,7 +355,7 @@ export default function VerifyEmail() {
             Verify Your Email
           </h1>
           <p className="text-gray-600">
-            We've sent a 6-digit code to <br />
+            We&apos;ve sent a 6-digit code to <br />
             <span className="font-semibold">{email}</span>
           </p>
         </div>
@@ -409,7 +409,7 @@ export default function VerifyEmail() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600 mb-2">Didn't receive the code?</p>
+            <p className="text-gray-600 mb-2">Didn&apos;t receive the code?</p>
             {resendTimer > 0 ? (
               <p className="text-gray-500 text-sm">Resend in {resendTimer}s</p>
             ) : (
