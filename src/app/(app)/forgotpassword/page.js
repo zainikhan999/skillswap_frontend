@@ -51,7 +51,7 @@ export default function ForgotPassword() {
             Forgot Password?
           </h1>
           <p className="text-gray-600">
-            No worries! Enter your email and we'll send you a reset code.
+            No worries! Enter your email and we&apos;ll send you a reset code.
           </p>
         </div>
 
