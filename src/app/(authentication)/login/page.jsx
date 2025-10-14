@@ -40,7 +40,7 @@ export default function Login() {
     if (!user) {
       router.push("/login");
     } else {
-      router.push("/services");
+      router.push("/allservices");
     }
   }, [user, router]);
 
@@ -99,7 +99,7 @@ export default function Login() {
       } else if (!profileCompleted) {
         router.push("/fillprofile");
       } else if (userType === "user") {
-        router.push("/services");
+        router.push("/allservices");
       }
     } catch (error) {
       console.log("Login error details:", {
