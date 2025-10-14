@@ -54,7 +54,7 @@ export const metadata = {
     siteName: "Skill Swap",
     images: [
       {
-        url: "https://skillswap-frontend-ten.vercel.app/skill_swap.png",
+        url: "https://skillswap-frontend-ten.vercel.app/favicon.ico",
         width: 200,
         height: 200,
         alt: "Skill Swap Preview",
@@ -68,10 +68,10 @@ export const metadata = {
     title: "Skill Swap – Connect, Learn & Grow",
     description:
       "Join Skill Swap to share knowledge, learn new skills, and connect with talented people.",
-    images: ["https://skillswap-frontend-ten.vercel.app/skill_swap.png"],
+    images: ["https://skillswap-frontend-ten.vercel.app/favicon.ico"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/skill_swap.png",
   },
 };
 
