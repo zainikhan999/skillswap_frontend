@@ -40,7 +40,7 @@ export default function Login() {
     if (!user) {
       router.push("/login");
     } else {
-      router.push("/allservices");
+      router.push("/services");
     }
   }, [user, router]);
 
