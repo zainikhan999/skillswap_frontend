@@ -288,13 +288,6 @@ export default function PopularSkillsSection() {
                         }}
                       ></div>
                     </div>
-
-                    {/* Action Button */}
-                    <button
-                      className={`w-full py-3 px-4 bg-gradient-to-r ${skill.color} text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105`}
-                    >
-                      Start Learning
-                    </button>
                   </div>
 
                   {/* Hover Glow Effect */}

@@ -6,7 +6,7 @@ const features = [
   {
     title: "AI-Based Skill Evaluation",
     description:
-      "Automatically assess your skill levels using intelligent AI to match you with ideal partners.",
+      "Intelligent system that will evaluate the hours for both skills i.e. 1 hour of coding = 2 hour of graphic designing.",
     icon: (
       <div className="w-14 h-14 flex items-center justify-center bg-green-100 text-green-600 rounded-full shadow-md mb-4 mx-auto">
         <FaBrain className="text-2xl" />
@@ -16,7 +16,7 @@ const features = [
   {
     title: "Skill Bank",
     description:
-      "Track, store, and display your acquired skills in a personalized dashboard.",
+      "Request help from community if you can't offer something and pay back later to community when you can.",
     icon: (
       <div className="w-14 h-14 flex items-center justify-center bg-green-100 text-green-600 rounded-full shadow-md mb-4 mx-auto">
         <FaDatabase className="text-2xl" />

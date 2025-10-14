@@ -12,6 +12,9 @@ const poppins = Poppins({
 export const metadata = {
   title: "My App",
   description: "Some description",
+  icons: {
+    icon: "/skill_swap.png",
+  },
 };
 
 export default function RootLayout({ children }) {
