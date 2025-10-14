@@ -43,7 +43,7 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "Skill Swap – Connect, Learn & Grow",
+  title: "Skill Swap – Connect, Share & Grow",
   description:
     "Skill Swap helps you exchange skills, connect with people, and grow together.",
   openGraph: {
