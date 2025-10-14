@@ -163,8 +163,6 @@ const AllGigs = () => {
   }, [selectedCategory, searchTerm, gigs]);
 
   const handleCategoryChange = (category) => {
-    console.log("Selected category:", category); // Add this line
-
     setSelectedCategory(category);
   };
 

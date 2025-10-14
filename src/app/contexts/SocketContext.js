@@ -82,60 +82,9 @@ export const SocketProvider = ({ children }) => {
 
     // Listen for BOTH notification event names
     socketInstance.on("notification", (newNotification) => {
-      console.log("Notification received (notification):", newNotification);
       setNotification((prev) => [...prev, newNotification]);
     });
 
-    // socketInstance.on("receive_notification", (newNotification) => {
-    //   console.log(
-    //     "Notification received (receive_notification):",
-    //     newNotification
-    //   );
-    //   setNotification((prev) => [...prev, newNotification]);
-    // });
-
-    // IMPORTANT: Listen for message events to create notifications
-    //   socketInstance.on(
-    //     "receive_message",
-    //     ({ message, sender, recipient, timestamp, type }) => {
-    //       if (type !== "system" && type !== "swap_details") {
-    //         const currentPath = window.location.pathname;
-    //         const currentRecipient = new URLSearchParams(
-    //           window.location.search
-    //         ).get("recipient");
-
-    //         // ✅ ADD THIS CHECK - Get current user
-    //         const currentUser = JSON.parse(
-    //           localStorage.getItem("user") || "{}"
-    //         )?.userName;
-
-    //         // ✅ CRITICAL: Don't notify if current user is the sender
-    //         if (sender === currentUser) {
-    //           console.log("Skipping notification - I sent this message");
-    //           return;
-    //         }
-
-    //         // Only notify if user is not on messages page viewing this specific chat
-    //         if (currentPath !== "/messages" || currentRecipient !== sender) {
-    //           const messageNotification = {
-    //             _id: `msg_${Date.now()}_${Math.random()}`,
-    //             message: `New message from ${sender}: ${message.substring(
-    //               0,
-    //               50
-    //             )}${message.length > 50 ? "..." : ""}`,
-    //             sender: sender,
-    //             recipient: recipient,
-    //             type: "message",
-    //             seen: false,
-    //             createdAt: timestamp || new Date().toISOString(),
-    //           };
-
-    //           console.log("Creating message notification:", messageNotification);
-    //           setNotification((prev) => [...prev, messageNotification]);
-    //         }
-    //       }
-    //     }
-    //   );
     return () => {
       socketInstance.disconnect();
     };

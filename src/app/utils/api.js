@@ -18,7 +18,6 @@ const fetchCSRFToken = async () => {
     });
 
     csrfToken = response.data.csrfToken;
-    console.log("CSRF token fetched:", csrfToken ? "SUCCESS" : "FAILED");
     return csrfToken;
   } catch (error) {
     console.error("Failed to fetch CSRF token:", error);
@@ -42,7 +41,6 @@ api.interceptors.request.use(
 
         if (csrfToken) {
           config.headers["X-CSRF-Token"] = csrfToken;
-          console.log("Added CSRF token to request:", config.url);
         }
       } catch (error) {
         console.error("Failed to add CSRF token:", error);
@@ -72,7 +70,6 @@ api.interceptors.response.use(
       error.response?.data?.code === "CSRF_ERROR" &&
       !originalRequest._retry
     ) {
-      console.log("CSRF error detected, refreshing token and retrying...");
       originalRequest._retry = true;
 
       try {

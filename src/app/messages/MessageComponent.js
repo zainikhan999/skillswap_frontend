@@ -92,7 +92,6 @@ export default function MessageComponent() {
       return; // Already viewing this chat, don't re-emit
     }
 
-    console.log(`Viewing chat with ${recipient}`);
     socketRef.current.emit("viewing_chat", {
       viewer: sender,
       chattingWith: recipient,
@@ -104,7 +103,6 @@ export default function MessageComponent() {
     // Cleanup: only runs when recipient changes or component unmounts
     return () => {
       if (socketRef.current && lastViewingChatRef.current === recipient) {
-        console.log(`Left chat with ${recipient}`);
         socketRef.current.emit("left_chat", {
           viewer: sender,
         });
@@ -120,11 +118,8 @@ export default function MessageComponent() {
     socket.emit("join_room", room);
 
     const handleMessage = ({ message, sender, timestamp, type, swapData }) => {
-      console.log("Socket message received:", { type, message, swapData });
-
       if (type === "swap_details") {
         const swapStatus = swapData?.status?.toLowerCase();
-        console.log("Swap status from socket:", swapStatus);
 
         // IMMEDIATELY update state when receiving swap updates
         setCurrentSwapStatus(swapStatus);
@@ -143,11 +138,9 @@ export default function MessageComponent() {
       } else if (type === "system") {
         // Check if it's a completion message and update status
         if (message.includes("FULLY COMPLETED")) {
-          console.log("Setting chat disabled to TRUE");
           setCurrentSwapStatus("completed");
           setIsChatDisabled(true);
         } else if (message.includes("marked their part complete")) {
-          console.log("Setting status to PARTIALLY_COMPLETED");
           setCurrentSwapStatus("partially_completed");
           setIsChatDisabled(false); // Keep chat open for partial completion
         }
@@ -217,8 +210,6 @@ export default function MessageComponent() {
     try {
       const response = await api.get(`${BASE_URL}/api/swaps/${swapId}/status`);
       const { bothCompleted, status } = response.data;
-
-      console.log("API Status check:", { status, bothCompleted });
 
       // API is always source of truth
       setCurrentSwapStatus(status);
@@ -672,8 +663,6 @@ export default function MessageComponent() {
       return;
     }
 
-    console.log("Proposed Time:", time);
-
     socketRef.current.emit("message", {
       room,
       message: `Proposed time: ${time} hours`,
@@ -814,116 +803,7 @@ export default function MessageComponent() {
     setAcceptingSwapRequestId(null);
   };
 
-  // Replace your handleSubmitSwap function with this:
-  // const handleSubmitSwap = async (swapDetails) => {
-  //   console.log("handleSubmitSwap called with:", swapDetails);
-
-  //   if (!swapDetails) {
-  //     console.error("swapDetails is undefined!");
-  //     alert("Error: Form data is missing. Please try again.");
-  //     return;
-  //   }
-
-  //   if (!acceptingSwapRequestId) {
-  //     console.error("acceptingSwapRequestId is missing!");
-  //     alert("Error: No swap request ID found");
-  //     return;
-  //   }
-
-  //   try {
-  //     // Get the original request details
-  //     const originalRequest = swapRequests.find(
-  //       (req) => req.id === acceptingSwapRequestId
-  //     );
-
-  //     if (!originalRequest) {
-  //       alert("Original swap request not found");
-  //       return;
-  //     }
-
-  //     const requestBody = {
-  //       taskName: swapDetails.taskName,
-  //       timeRequired: parseInt(swapDetails.timeRequired),
-  //       description: swapDetails.description,
-  //       deadline: swapDetails.deadline,
-  //     };
-
-  //     console.log("Sending to API:", requestBody);
-
-  //     const response = await api.post(
-  //       `${BASE_URL}/api/swap-requests/${acceptingSwapRequestId}/accept`,
-  //       requestBody
-  //     );
-
-  //     if (response.status === 200) {
-  //       // NOW remove the request from the list since API call succeeded
-  //       setSwapRequests((prev) =>
-  //         prev.filter((req) => req.id !== acceptingSwapRequestId)
-  //       );
-
-  //       // Create swap details object for the message
-  //       const swapDetailsMessage = {
-  //         swapId: response.data.swapId || acceptingSwapRequestId,
-  //         status: "accepted",
-  //         requesterTask: {
-  //           taskName: originalRequest.taskName,
-  //           description: originalRequest.description,
-  //           timeRequired: originalRequest.timeRequired,
-  //           deadline: originalRequest.deadline,
-  //         },
-  //         responderTask: {
-  //           taskName: swapDetails.taskName,
-  //           description: swapDetails.description,
-  //           timeRequired: swapDetails.timeRequired,
-  //           deadline: swapDetails.deadline,
-  //         },
-  //       };
-
-  //       // Send the swap details message to the chat
-  //       const roomName = [sender, originalRequest.user].sort().join("_");
-
-  //       // Send to backend
-  //       await api.post(`${BASE_URL}/message`, {
-  //         room: roomName,
-  //         message: "Swap agreement created",
-  //         sender,
-  //         recipient: originalRequest.user,
-  //         type: "swap_details",
-  //         swapData: swapDetailsMessage,
-  //       });
-
-  //       // Emit via socket
-  //       socketRef.current.emit("message", {
-  //         room: roomName,
-  //         message: "Swap agreement created",
-  //         sender,
-  //         recipient: originalRequest.user,
-  //         type: "swap_details",
-  //         swapData: swapDetailsMessage,
-  //       });
-
-  //       // Close modal and switch to the chat
-  //       setIsModalOpen(false);
-  //       setAcceptingSwapRequestId(null);
-
-  //       // Switch to the chat with this user
-  //       handleRecipientClick(originalRequest.user);
-
-  //       // Fetch updated chat history
-  //       setTimeout(() => fetchChatHistory(sender, originalRequest.user), 500);
-
-  //       alert("Swap accepted successfully!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error accepting swap:", error);
-  //     const errorMessage =
-  //       error.response?.data?.message || "Failed to accept swap request";
-  //     alert(`Error: ${errorMessage}`);
-  //   }
-  // };
   const handleSubmitSwap = async (swapDetails) => {
-    console.log("handleSubmitSwap called with:", swapDetails);
-
     if (!swapDetails || !acceptingSwapRequestId) {
       alert("Error: Missing required data");
       return;
@@ -986,7 +866,6 @@ export default function MessageComponent() {
             type: "swap_details",
             swapData: swapDetailsMessage,
           });
-          console.log("✅ Message saved to database");
         } catch (msgError) {
           console.error("Error sending message to backend:", msgError);
         }
@@ -1001,7 +880,6 @@ export default function MessageComponent() {
             type: "swap_details",
             swapData: swapDetailsMessage,
           });
-          console.log("✅ Message emitted via socket");
         }
 
         // Close modal
@@ -1255,93 +1133,6 @@ export default function MessageComponent() {
     }
   };
 
-  // const handleSendMessage = async () => {
-  //   if (isMessagingDisabled()) {
-  //     alert(
-  //       "This conversation has been closed. No further messages can be sent."
-  //     );
-  //     return;
-  //   }
-
-  //   if (message.trim() && socketRef.current && recipient) {
-  //     const roomName = [sender, recipient].sort().join("_");
-
-  //     socketRef.current.emit("join_room", roomName);
-
-  //     try {
-  //       await sendMessageToBackend({
-  //         room: roomName,
-  //         message,
-  //         sender,
-  //         recipient,
-  //       });
-
-  //       socketRef.current.emit("message", {
-  //         room: roomName,
-  //         message,
-  //         sender,
-  //         recipient,
-  //       });
-
-  //       setRoom(roomName);
-  //       setMessage("");
-  //     } catch (error) {
-  //       console.error("Error sending message:", error);
-  //     }
-  //   }
-  // };
-  // const handleSendMessage = async () => {
-  //   if (isMessagingDisabled()) {
-  //     alert(
-  //       "This conversation has been closed. No further messages can be sent."
-  //     );
-  //     return;
-  //   }
-
-  //   if (message.trim() && socketRef.current && recipient) {
-  //     const roomName = [sender, recipient].sort().join("_");
-
-  //     // 🔍 ADD THIS DEBUG LOG
-  //     console.log("💬 Sending message:", {
-  //       sender,
-  //       recipient,
-  //       room: roomName,
-  //       message: message.substring(0, 30),
-  //     });
-
-  //     socketRef.current.emit("join_room", roomName);
-
-  //     try {
-  //       await sendMessageToBackend({
-  //         room: roomName,
-  //         message,
-  //         sender,
-  //         recipient,
-  //       });
-
-  //       socketRef.current.emit("message", {
-  //         room: roomName,
-  //         message,
-  //         sender,
-  //         recipient,
-  //       });
-
-  //       setRoom(roomName);
-  //       setMessage("");
-  //     } catch (error) {
-  //       console.error("Error sending message:", error);
-  //     }
-  //   } else {
-  //     // 🔍 ADD THIS TOO
-  //     console.error("❌ Cannot send - missing data:", {
-  //       hasMessage: !!message.trim(),
-  //       hasSocket: !!socketRef.current,
-  //       hasRecipient: !!recipient,
-  //       sender,
-  //       recipient,
-  //     });
-  //   }
-  // };
   const handleSendMessage = async () => {
     // Check if trying to message self
     if (recipient === sender) {
@@ -1358,13 +1149,6 @@ export default function MessageComponent() {
 
     if (message.trim() && socketRef.current && recipient) {
       const roomName = [sender, recipient].sort().join("_");
-
-      console.log("💬 Sending message:", {
-        sender,
-        recipient,
-        room: roomName,
-        message: message.substring(0, 30),
-      });
 
       socketRef.current.emit("join_room", roomName);
 
@@ -1428,7 +1212,6 @@ export default function MessageComponent() {
           profilesMap[profile.username] = profile;
         });
         setUserProfiles(profilesMap);
-        console.log("Fetched user profiles:", profilesMap);
       } catch (err) {
         console.error("Failed to fetch user profiles", err);
       }

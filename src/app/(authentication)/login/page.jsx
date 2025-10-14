@@ -6,7 +6,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-
 import {
   FaUser,
   FaLock,
@@ -22,6 +21,8 @@ import {
   FaCheckCircle,
   FaShieldAlt,
 } from "react-icons/fa";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 import { useEffect } from "react";
 
 export default function Login() {
@@ -35,7 +36,6 @@ export default function Login() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [successMessage, setSuccessMessage] = useState("");
-
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -65,8 +65,6 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      console.log("Attempting login for:", userName);
-
       const response = await loginUser({
         userName,
         password,
@@ -82,8 +80,6 @@ export default function Login() {
         firstName,
         lastName,
       } = response.data;
-
-      console.log("Login Response:", response.data);
 
       const userData = {
         userId: _id,

@@ -11,7 +11,6 @@ export const ChatProvider = ({ children }) => {
   const toggleChat = (user) => {
     setActiveChat((prevUser) => {
       const newUser = prevUser === user ? null : user;
-      console.log("Active chat changed:", newUser);
       return newUser;
     });
   };

@@ -306,8 +306,6 @@ export default function VerifyEmail() {
           profileCompleted: false, // ✅ Explicitly set
         };
 
-        console.log("✅ Storing verified user:", verifiedUser);
-
         // ✅ Use AuthContext login method
         login(verifiedUser);
 

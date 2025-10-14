@@ -282,13 +282,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
                 <div
                   key={notif._id || `notif-${index}-${notif.timestamp}`}
                   onClick={() => {
-                    console.log("🔔 Notification clicked:", {
-                      notifSender: notif.sender,
-                      notifRecipient: notif.recipient,
-                      currentUser: user?.userName,
-                      redirectingTo: notif.sender,
-                    });
-
                     if (notif.type === "message" && notif.sender) {
                       router.push(`/messages?recipient=${notif.sender}`);
                       setIsNotificationDropdownOpen(false);
