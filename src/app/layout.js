@@ -11,7 +11,7 @@ const poppins = Poppins({
 });
 export const metadata = {
   title: "Skill Swap",
-  description: "Some description",
+  description: "A platform to exchange skills.",
   icons: {
     icon: "/favicon.ico",
   },
