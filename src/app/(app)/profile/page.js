@@ -93,7 +93,7 @@ export default function ProfileForm() {
       }
 
       if (parsedUser.profileCompleted) {
-        router.push("/allservices");
+        router.push("/services");
         return;
       }
 

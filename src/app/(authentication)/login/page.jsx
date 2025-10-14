@@ -99,7 +99,7 @@ export default function Login() {
       } else if (!profileCompleted) {
         router.push("/fillprofile");
       } else if (userType === "user") {
-        router.push("/allservices");
+        router.push("/services");
       }
     } catch (error) {
       console.log("Login error details:", {
