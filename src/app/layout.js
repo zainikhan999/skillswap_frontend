@@ -10,10 +10,10 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 export const metadata = {
-  title: "My App",
+  title: "Skill Swap",
   description: "Some description",
   icons: {
-    icon: "/skill_swap.png",
+    icon: "/favicon.ico",
   },
 };
 
