@@ -227,6 +227,8 @@ export default function MessageComponent() {
     return isChatDisabled; // Use state instead of checking messages
   };
 
+  // Replace your handleCompleteSwap function with this EXACT code:
+
   const handleCompleteSwap = async () => {
     const { swapId } = getCurrentSwapStatus();
 
@@ -236,27 +238,44 @@ export default function MessageComponent() {
     }
 
     try {
-      const response = await api.put(
+      console.log("🔄 Attempting to complete swap:", swapId);
+
+      // ✅ CRITICAL FIX: Use POST instead of PUT, and remove /api from path
+      const response = await api.post(
         `${BASE_URL}/api/swaps/${swapId}/complete`
       );
 
+      console.log("✅ Server response:", response.data);
+
       if (response.status === 200) {
         const { bothCompleted, swap } = response.data;
+
+        console.log("📊 Swap status:", {
+          swapId,
+          bothCompleted,
+          status: swap.status,
+        });
 
         setCurrentSwapStatus(swap.status);
         setIsChatDisabled(bothCompleted);
 
         if (bothCompleted) {
+          console.log(
+            "🎉 BOTH USERS COMPLETED - Swap counts should be updated!"
+          );
+
           // Both completed - emit system message
           const systemMessage = `🎉 Swap FULLY COMPLETED! Both parties have marked their tasks complete. This chat is now closed.`;
 
-          socketRef.current.emit("message", {
-            room,
-            message: systemMessage,
-            sender: "system",
-            recipient,
-            type: "system",
-          });
+          if (socketRef.current) {
+            socketRef.current.emit("message", {
+              room,
+              message: systemMessage,
+              sender: "system",
+              recipient,
+              type: "system",
+            });
+          }
 
           // Save system message to backend
           await api.post(`${BASE_URL}/message`, {
@@ -277,18 +296,24 @@ export default function MessageComponent() {
             closeChat();
           }
 
-          alert("Swap fully completed! Chat has been closed.");
+          alert(
+            "✅ Swap fully completed! Your swap count has been updated. Refresh your profile to see the new count."
+          );
         } else {
-          // Partial completion - emit system message
-          const systemMessage = `${sender} marked their part complete. Waiting for ${recipient} to complete their part.`;
+          console.log("⏳ Partial completion - waiting for other user");
 
-          socketRef.current.emit("message", {
-            room,
-            message: systemMessage,
-            sender: "system",
-            recipient,
-            type: "system",
-          });
+          // Partial completion - emit system message
+          const systemMessage = `✅ ${sender} marked their part complete. Waiting for ${recipient} to complete their part.`;
+
+          if (socketRef.current) {
+            socketRef.current.emit("message", {
+              room,
+              message: systemMessage,
+              sender: "system",
+              recipient,
+              type: "system",
+            });
+          }
 
           // Save system message to backend
           await api.post(`${BASE_URL}/message`, {
@@ -311,9 +336,19 @@ export default function MessageComponent() {
         }, 500);
       }
     } catch (error) {
-      console.error("Error completing swap:", error);
+      console.error("❌ Error completing swap:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+
       alert(
-        `Error: ${error.response?.data?.message || "Failed to complete swap"}`
+        `Error: ${
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to complete swap"
+        }`
       );
     }
   };

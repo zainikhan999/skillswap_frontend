@@ -58,27 +58,41 @@ const AllGigs = () => {
   }, [user, authLoading, router]);
 
   // Function to get completed swaps for a specific user
+  // const getCompletedSwapsForUser = async (username) => {
+  //   try {
+  //     // First, get all swaps for the current logged-in user
+  //     const response = await api.get(`${BASE_URL}/api/swaps`, {
+  //       withCredentials: true,
+  //     });
+
+  //     if (response.data.swaps) {
+  //       // Filter swaps that involve the target username and are completed
+  //       const completedSwaps = response.data.swaps.filter((swap) => {
+  //         const isInvolved =
+  //           swap.requester.userId.userName === username ||
+  //           swap.responder.userId?.userName === username;
+  //         return isInvolved && swap.status === "completed";
+  //       });
+
+  //       return completedSwaps.length;
+  //     }
+  //     return 0;
+  //   } catch (error) {
+  //     console.error(`Error fetching swaps for ${username}:`, error);
+  //     return 0;
+  //   }
+  // };
   const getCompletedSwapsForUser = async (username) => {
     try {
-      // First, get all swaps for the current logged-in user
-      const response = await api.get(`${BASE_URL}/api/swaps`, {
-        withCredentials: true,
-      });
-
-      if (response.data.swaps) {
-        // Filter swaps that involve the target username and are completed
-        const completedSwaps = response.data.swaps.filter((swap) => {
-          const isInvolved =
-            swap.requester.userId.userName === username ||
-            swap.responder.userId?.userName === username;
-          return isInvolved && swap.status === "completed";
-        });
-
-        return completedSwaps.length;
-      }
-      return 0;
+      const response = await api.get(
+        `${BASE_URL}/api/get-swap-count/${username}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data.swapCount || 0;
     } catch (error) {
-      console.error(`Error fetching swaps for ${username}:`, error);
+      console.error(`Error fetching swap count for ${username}:`, error);
       return 0;
     }
   };
