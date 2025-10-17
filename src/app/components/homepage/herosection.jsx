@@ -259,8 +259,10 @@ export default function HeroSection() {
               </h1>
 
               <p className="text-base sm:text-lg lg:text-xl text-gray-600 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Trade your skills with passionate learners. Whether you&apos;re
-                a developer learning art or a musician exploring coding—
+                Whether you&apos;re a tech whiz looking for fitness tips, a chef
+                wanting photography lessons, or anything in between — connect
+                with like-minded swappers and exchange skills in fun, practical
+                sessions.
                 <span className="font-semibold text-green-600">
                   {" "}
                   SkillSwap connects you.

@@ -658,13 +658,13 @@ export default function MessageComponent() {
           </div>
 
           <div className="flex gap-2">
-            <button
+            {/* <button
               onClick={() => setIsProposeTimeOpen(true)}
               className="bg-gray-100 text-gray-600 p-3 rounded-full hover:bg-gray-200 transition-all"
               title="Propose Time"
             >
               <FaClock className="text-sm" />
-            </button>
+            </button> */}
 
             <button
               onClick={handleSendMessage}
@@ -680,12 +680,12 @@ export default function MessageComponent() {
             </button>
           </div>
         </div>
-
+        {/* 
         <ProposeTimeModal
           isOpen={isProposeTimeOpen}
           onClose={() => setIsProposeTimeOpen(false)}
           onSubmit={handleProposeTime}
-        />
+        /> */}
       </div>
     );
   };

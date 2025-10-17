@@ -7,8 +7,10 @@ import {
   FaCloudUploadAlt,
   FaHandshake,
   FaArrowRight,
+  FaComments,
 } from "react-icons/fa";
 import Link from "next/link";
+
 const steps = [
   {
     title: "Sign Up",
@@ -38,13 +40,13 @@ const steps = [
     bgColor: "bg-orange-500",
   },
   {
-    title: "Start Swapping",
+    title: "Connect & Message",
     description:
-      "Get intelligently matched with learners and mentors, then begin your skill exchange journey immediately!",
-    image: "/swap.png",
-    icon: <FaHandshake className="text-white text-2xl" />,
-    color: "from-green-500 to-green-600",
-    bgColor: "bg-green-500",
+      "Send swap requests to potential partners and chat in real-time to discuss details, coordinate schedules, and build meaningful connections.",
+    image: "/messages.png",
+    icon: <FaComments className="text-white text-2xl" />,
+    color: "from-cyan-500 to-blue-600",
+    bgColor: "bg-cyan-500",
   },
 ];
 
