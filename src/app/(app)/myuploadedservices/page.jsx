@@ -422,6 +422,14 @@ const EditServiceModal = ({ gig, onClose, onUpdate }) => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Category
             </label>
+            <input
+              type="text"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              placeholder="e.g., IT, Business, Marketing"
+            />
           </div>
 
           {/* Action Buttons */}
