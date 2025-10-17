@@ -1,8 +1,8 @@
 // "use client";
 // import { useEffect, useState, useRef } from "react";
-// import api from "../../utils/api"; // Adjust the path if necessary"
+// import api from "../../utils/api";
 // api.defaults.withCredentials = true;
-// import { useAuth } from "../../contexts/AuthContext"; // Adjust the import path as necessary
+// import { useAuth } from "../../contexts/AuthContext";
 // import {
 //   FaUserCircle,
 //   FaExchangeAlt,
@@ -11,22 +11,171 @@
 //   FaCheck,
 //   FaPlus,
 //   FaEdit,
-// } from "react-icons/fa"; // Importing icons
-// import SuccessPopup from "../../components/successPopup"; // Adjust the import path as necessary
+//   FaTimes,
+// } from "react-icons/fa";
+// import SuccessPopup from "../../components/successPopup";
 // import Link from "next/link";
 // import { useRouter } from "next/navigation";
+
 // const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+// // Edit Modal Component
+// const EditServiceModal = ({ gig, onClose, onUpdate }) => {
+//   const [formData, setFormData] = useState({
+//     skillName: gig.skillName,
+//     skillDescription: gig.skillDescription,
+//     exchangeService: gig.exchangeService,
+//     category: gig.category || "",
+//   });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       await onUpdate(gig._id, formData);
+//       onClose();
+//     } catch (err) {
+//       setError(err.response?.data?.message || "Failed to update service");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+//       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+//         {/* Header */}
+//         <div className="sticky top-0 bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-t-2xl flex justify-between items-center">
+//           <h2 className="text-2xl font-bold">Edit Service</h2>
+//           <button
+//             onClick={onClose}
+//             className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-all"
+//           >
+//             <FaTimes className="text-xl" />
+//           </button>
+//         </div>
+
+//         {/* Form */}
+//         <div className="p-6 space-y-6">
+//           {error && (
+//             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+//               {error}
+//             </div>
+//           )}
+
+//           {/* Skill Name */}
+//           <div>
+//             <label className="block text-sm font-semibold text-gray-700 mb-2">
+//               Service Name <span className="text-red-500">*</span>
+//             </label>
+//             <input
+//               type="text"
+//               name="skillName"
+//               value={formData.skillName}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+//               placeholder="e.g., Web Development, Graphic Design"
+//             />
+//           </div>
+
+//           {/* Skill Description */}
+//           <div>
+//             <label className="block text-sm font-semibold text-gray-700 mb-2">
+//               Description <span className="text-red-500">*</span>
+//             </label>
+//             <textarea
+//               name="skillDescription"
+//               value={formData.skillDescription}
+//               onChange={handleChange}
+//               required
+//               rows={4}
+//               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
+//               placeholder="Describe your service in detail..."
+//             />
+//           </div>
+
+//           {/* Exchange Service */}
+//           <div>
+//             <label className="block text-sm font-semibold text-gray-700 mb-2">
+//               Looking For <span className="text-red-500">*</span>
+//             </label>
+//             <input
+//               type="text"
+//               name="exchangeService"
+//               value={formData.exchangeService}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+//               placeholder="What service do you want in exchange?"
+//             />
+//           </div>
+
+//           {/* Category */}
+//           <div>
+//             <label className="block text-sm font-semibold text-gray-700 mb-2">
+//               Category
+//             </label>
+//             <input
+//               type="text"
+//               name="category"
+//               value={formData.category}
+//               onChange={handleChange}
+//               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+//               placeholder="e.g., IT, Business, Marketing"
+//             />
+//           </div>
+
+//           {/* Action Buttons */}
+//           <div className="flex gap-3 pt-4">
+//             <button
+//               type="button"
+//               onClick={onClose}
+//               className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-semibold"
+//             >
+//               Cancel
+//             </button>
+//             <button
+//               type="button"
+//               onClick={handleSubmit}
+//               disabled={loading}
+//               className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+//             >
+//               {loading ? "Updating..." : "Update Service"}
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
 // const MyGigsPage = () => {
 //   const [gigs, setGigs] = useState([]);
 //   const [profiles, setProfiles] = useState({});
 //   const [currentUser, setCurrentUser] = useState("");
 //   const [showSuccess, setShowSuccess] = useState(false);
+//   const [successMessage, setSuccessMessage] = useState("");
 //   const [swapCounts, setSwapCounts] = useState({});
 //   const [loading, setLoading] = useState(true);
+//   const [editingGig, setEditingGig] = useState(null);
 
 //   const { user, loading: authLoading } = useAuth();
 //   const isRedirecting = useRef(false);
 //   const router = useRouter();
+
 //   useEffect(() => {
 //     if (authLoading || isRedirecting.current) return;
 
@@ -87,7 +236,7 @@
 //     };
 
 //     fetchUserGigsAndProfile();
-//   }, [user]); // only depend on `user`, not `user.userName`
+//   }, [user]);
 
 //   const handleDelete = async (gigId) => {
 //     const confirmDelete = window.confirm(
@@ -99,9 +248,27 @@
 //       await api.delete(`${BASE_URL}/api/delete-gig/${gigId}`);
 //       const updatedGigs = gigs.filter((gig) => gig._id !== gigId);
 //       setGigs(updatedGigs);
-//       setShowSuccess(true); // Show success modal
+//       setSuccessMessage("Service removed successfully!");
+//       setShowSuccess(true);
 //     } catch (err) {
 //       console.error("Error deleting gig:", err);
+//     }
+//   };
+
+//   const handleUpdate = async (gigId, updatedData) => {
+//     try {
+//       await api.put(`${BASE_URL}/api/update-gig/${gigId}`, updatedData);
+
+//       // Update local state
+//       const updatedGigs = gigs.map((gig) =>
+//         gig._id === gigId ? { ...gig, ...updatedData } : gig
+//       );
+//       setGigs(updatedGigs);
+//       setSuccessMessage("Service updated successfully!");
+//       setShowSuccess(true);
+//     } catch (err) {
+//       console.error("Error updating gig:", err);
+//       throw err;
 //     }
 //   };
 
@@ -241,7 +408,10 @@
 
 //                 {/* Action Buttons */}
 //                 <div className="flex gap-3">
-//                   <button className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2.5 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+//                   <button
+//                     onClick={() => setEditingGig(gig)}
+//                     className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2.5 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+//                   >
 //                     <FaEdit className="text-sm" />
 //                     Edit
 //                   </button>
@@ -279,10 +449,19 @@
 //           </div>
 //         )}
 
+//         {/* Edit Modal */}
+//         {editingGig && (
+//           <EditServiceModal
+//             gig={editingGig}
+//             onClose={() => setEditingGig(null)}
+//             onUpdate={handleUpdate}
+//           />
+//         )}
+
 //         {/* Success Popup */}
 //         {showSuccess && (
 //           <SuccessPopup
-//             message="Service removed successfully!"
+//             message={successMessage}
 //             onClose={() => setShowSuccess(false)}
 //           />
 //         )}
@@ -362,7 +541,7 @@ const EditServiceModal = ({ gig, onClose, onUpdate }) => {
         </div>
 
         {/* Form */}
-        <div className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
@@ -420,13 +599,14 @@ const EditServiceModal = ({ gig, onClose, onUpdate }) => {
           {/* Category */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Category
+              Category <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               name="category"
               value={formData.category}
               onChange={handleChange}
+              required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               placeholder="e.g., IT, Business, Marketing"
             />
@@ -442,15 +622,14 @@ const EditServiceModal = ({ gig, onClose, onUpdate }) => {
               Cancel
             </button>
             <button
-              type="button"
-              onClick={handleSubmit}
+              type="submit"
               disabled={loading}
               className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Updating..." : "Update Service"}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
@@ -462,7 +641,7 @@ const MyGigsPage = () => {
   const [currentUser, setCurrentUser] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [swapCounts, setSwapCounts] = useState({});
+  const [completedSwapCounts, setCompletedSwapCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [editingGig, setEditingGig] = useState(null);
 
@@ -490,6 +669,22 @@ const MyGigsPage = () => {
     }
   }, [user, authLoading, router]);
 
+  // Function to get completed swaps for a specific user
+  const getCompletedSwapsForUser = async (username) => {
+    try {
+      const response = await api.get(
+        `${BASE_URL}/api/get-swap-count/${username}`,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data.swapCount || 0;
+    } catch (error) {
+      console.error(`Error fetching swap count for ${username}:`, error);
+      return 0;
+    }
+  };
+
   useEffect(() => {
     const fetchUserGigsAndProfile = async () => {
       if (!user || !user.userName) {
@@ -513,14 +708,15 @@ const MyGigsPage = () => {
           [user.userName]: profileData,
         }));
 
-        const { data: swapData } = await api.get(`${BASE_URL}/api/swaps`);
-        setSwapCounts((prev) => ({
+        // Fetch completed swap count using the endpoint
+        const completedCount = await getCompletedSwapsForUser(user.userName);
+        setCompletedSwapCounts((prev) => ({
           ...prev,
-          [user.userName]: swapData.swapCount || 0,
+          [user.userName]: completedCount,
         }));
       } catch (err) {
         console.error("Error fetching user gigs or profile:", err);
-        setSwapCounts((prev) => ({
+        setCompletedSwapCounts((prev) => ({
           ...prev,
           [user.userName]: 0,
         }));
@@ -579,6 +775,8 @@ const MyGigsPage = () => {
     );
   }
 
+  const completedSwapCount = completedSwapCounts[currentUser] || 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
       {/* Header Section */}
@@ -608,9 +806,9 @@ const MyGigsPage = () => {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">
-                  {swapCounts[currentUser] || 0}
+                  {completedSwapCount}
                 </div>
-                <div className="text-sm text-gray-600">Total Swaps</div>
+                <div className="text-sm text-gray-600">Completed Swaps</div>
               </div>
             </div>
 
@@ -649,7 +847,7 @@ const MyGigsPage = () => {
                     )}
 
                     {/* Success Badge */}
-                    {swapCounts[currentUser] > 0 && (
+                    {completedSwapCount > 0 && (
                       <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
                         <FaCheck className="text-white text-xs" />
                       </div>
@@ -665,15 +863,15 @@ const MyGigsPage = () => {
                     </p>
                   </div>
 
-                  {/* Rating/Swaps */}
+                  {/* Completed Swaps Display */}
                   <div className="text-right">
                     <div className="flex items-center gap-1 text-green-600">
                       <FaStar className="text-xs" />
                       <span className="text-sm font-medium">
-                        {swapCounts[currentUser] || 0}
+                        {completedSwapCount}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500">swaps</div>
+                    <div className="text-xs text-gray-500">completed</div>
                   </div>
                 </div>
 
@@ -698,6 +896,13 @@ const MyGigsPage = () => {
                       {gig.exchangeService}
                     </span>
                   </div>
+
+                  {/* Category Badge */}
+                  {gig.category && (
+                    <div className="inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
+                      {gig.category}
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
