@@ -422,21 +422,6 @@ const EditServiceModal = ({ gig, onClose, onUpdate }) => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Category
             </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white"
-            >
-              <option value="">Select a category</option>
-              <option value="Technology">Technology</option>
-              <option value="Design">Design</option>
-              <option value="Writing">Writing</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Business">Business</option>
-              <option value="Education">Education</option>
-              <option value="Other">Other</option>
-            </select>
           </div>
 
           {/* Action Buttons */}
