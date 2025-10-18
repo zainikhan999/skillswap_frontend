@@ -355,6 +355,10 @@ export default function VerifyEmail() {
           <p className="text-gray-600">
             We&apos;ve sent a 6-digit code to <br />
             <span className="font-semibold">{email}</span>
+            <br />
+            Check your
+            <span className="text-red-600"> spam folder </span>if you don&apos;t
+            see it.
           </p>
         </div>
 

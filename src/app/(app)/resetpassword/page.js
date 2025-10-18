@@ -108,7 +108,7 @@ export default function ResetPassword() {
           </h1>
           <p className="text-gray-600">
             {step === 1
-              ? "Enter the 6-digit code sent to your email"
+              ? "Enter the 6-digit code sent to your email. Check your spam folder if you don't see it."
               : "Create a new strong password"}
           </p>
         </div>
