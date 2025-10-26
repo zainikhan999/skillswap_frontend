@@ -49,3 +49,93 @@ button:active {
   background-color: #15803d; /* Even deeper on click */
   transform: translateY(0);
 }
+
+/* ============================================ */
+/* Custom Scrollbar Styles - Global */
+/* ============================================ */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #22c55e #f3f4f6;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  border-radius: 10px;
+  border: 2px solid #f3f4f6;
+  transition: all 0.3s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #16a34a, #15803d);
+  border-color: #e5e7eb;
+}
+
+/* Body specific */
+html,
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #22c55e #f3f4f6;
+}
+
+/* Mobile - thinner scrollbar */
+@media (max-width: 768px) {
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Dark mode scrollbar */
+@media (prefers-color-scheme: dark) {
+  * {
+    scrollbar-color: #22c55e #1f2937;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-color: #1f2937;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    border-color: #111827;
+  }
+}
+
+/* Utility class to hide scrollbar */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Alternative blue scrollbar for chat areas */
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6, #2563eb);
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
+}
+
+.chat-scrollbar {
+  scrollbar-color: #3b82f6 #f3f4f6;
+}

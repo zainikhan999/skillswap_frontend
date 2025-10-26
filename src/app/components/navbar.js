@@ -1,18 +1,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSocket } from "../contexts/SocketContext";
-import { createPortal } from "react-dom"; // Add this import at the top
+import { createPortal } from "react-dom";
 
 import {
   FiBell,
   FiMail,
   FiUser,
   FiHome,
-  FiSearch,
-  FiSettings,
   FiLogOut,
   FiMenu,
   FiX,
-  FiExternalLink,
 } from "react-icons/fi";
 import {
   FaExchangeAlt,
@@ -20,7 +17,7 @@ import {
   FaUserCircle,
   FaPlus,
   FaList,
-  FaChartBar,
+  FaTrophy,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -83,13 +80,10 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
     }
   }, [socket, user]);
 
-  // Also update the notification count to exclude current chat
   useEffect(() => {
     if (notification && Array.isArray(notification)) {
       const unreadCount = notification.filter((notif) => {
         if (notif.seen) return false;
-
-        // Exclude notifications from current active chat
         if (
           notif.type === "message" &&
           activeChat &&
@@ -97,13 +91,16 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         ) {
           return false;
         }
-
         return true;
       }).length;
-
       setNotificationCount(unreadCount);
     }
-  }, [notification, activeChat]); // Add activeChat to dependencies
+  }, [notification, activeChat]);
+
+  // Close mobile menu when clicking a link
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   const toggleNotificationDropdown = async () => {
     setIsNotificationDropdownOpen((prev) => !prev);
@@ -143,7 +140,12 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   };
 
   const navigationItems = [
-    { icon: FiHome, label: "Home", href: "/allservices", active: false },
+    {
+      icon: FaTrophy,
+      label: "Leaderboard",
+      href: "/leaderboard",
+      active: false,
+    },
     { icon: FaExchangeAlt, label: "My Swaps", href: "/myswaps", active: false },
     {
       icon: FaList,
@@ -178,6 +180,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
       {href ? (
         <Link href={href}>
           <div
+            onClick={closeMobileMenu}
             className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer group hover:bg-green-50 ${
               active
                 ? "bg-green-100 text-green-600"
@@ -205,7 +208,12 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
         </Link>
       ) : (
         <div
-          onClick={onClick}
+          onClick={() => {
+            onClick?.();
+            if (label === "Logout") {
+              closeMobileMenu();
+            }
+          }}
           className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-200 cursor-pointer group hover:bg-green-50 ${
             active
               ? "bg-green-100 text-green-600"
@@ -233,19 +241,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   );
 
   const NotificationDropdown = () => {
-    // Get current chat recipient from URL or ChatContext
-    const currentRecipient = activeChat; // From useChat context
+    const currentRecipient = activeChat;
 
-    // Filter out notifications from the person we're currently chatting with
     const displayNotifications = notification.filter((notif) => {
-      // Always show non-message notifications
       if (notif.type !== "message") return true;
-
-      // Hide message notifications from current active chat
       if (currentRecipient && notif.sender === currentRecipient) {
         return false;
       }
-
       return true;
     });
 
@@ -325,7 +327,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 w-full bg-white border-b border-gray-200 z-50 px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link href="/">
+          <Link href="/leaderboard">
             <div className="text-xl font-bold text-green-600">Skill Swap</div>
           </Link>
           <button
@@ -336,32 +338,34 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
           </button>
         </div>
       </div>
+
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[60]"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
+
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-[70] transition-all duration-300 flex flex-col ${
           isCollapsed ? "w-20" : "w-72"
         } ${
           isMobileMenuOpen
             ? "translate-x-0"
-            : "lg:translate-x-0 -translate-x-full lg:block"
+            : "lg:translate-x-0 -translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 flex-shrink-0">
           <div
             className={`flex items-center ${
               isCollapsed ? "justify-center" : "justify-between"
             }`}
           >
             {!isCollapsed && (
-              <Link href="/">
+              <Link href="/leaderboard" onClick={closeMobileMenu}>
                 <div className="font-bold text-green-600 text-2xl">
                   Skill Swap
                 </div>
@@ -369,7 +373,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
             )}
 
             <div className="flex items-center gap-2">
-              {/* Collapse Toggle - Desktop only */}
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="hidden lg:flex p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -377,7 +380,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
                 <FiMenu className="text-gray-600" />
               </button>
 
-              {/* Close Mobile Menu */}
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-full"
@@ -388,8 +390,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex-1 p-4 space-y-2">
+        {/* Navigation - Scrollable */}
+        <div className="flex-1 p-4 space-y-2 overflow-y-auto">
           {/* Main Navigation */}
           {navigationItems.map((item, index) => (
             <NavItem
@@ -418,8 +420,8 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
           </div>
         </div>
 
-        {/* User Section */}
-        <div className="border-t border-gray-100 p-4">
+        {/* User Section - Fixed at bottom */}
+        <div className="border-t border-gray-100 p-4 flex-shrink-0">
           <div
             className={`flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 transition-colors ${
               isCollapsed ? "justify-center" : ""
@@ -446,6 +448,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }) {
           </div>
         </div>
       </div>
+
       {/* Mobile top spacing */}
       <div className="lg:hidden pt-16" />
     </>
