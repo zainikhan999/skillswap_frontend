@@ -4,7 +4,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const api = axios.create({
   // baseURL: BASE_URL,
-  baseURL: "/api", // Use the Next.js rewrite for local development
+  baseURL: BASE_URL, // Use the Next.js rewrite for local development
   withCredentials: true,
   timeout: 10000, // 10 second timeout
 });
