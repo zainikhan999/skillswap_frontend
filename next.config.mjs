@@ -12,11 +12,11 @@ const nextConfig = {
         source: "/api/:path*",
         destination: "https://api.skillswapbackend.kesug.com/api/:path*", // backend with /api
       },
-      // ✅ Handles routes without /api (like upload, etc.)
-      {
-        source: "/backend/:path*",
-        destination: "https://api.skillswapbackend.kesug.com/:path*", // backend root
-      },
+      // // ✅ Handles routes without /api (like upload, etc.)
+      // {
+      //   source: "/backend/:path*",
+      //   destination: "https://api.skillswapbackend.kesug.com/:path*", // backend root
+      // },
     ];
   },
 };
