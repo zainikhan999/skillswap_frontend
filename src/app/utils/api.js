@@ -113,3 +113,5 @@ export const loginUser = async (credentials) => {
 export const clearTokens = () => {
   csrfToken = null;
 };
+
+export default api;
